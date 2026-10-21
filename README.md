@@ -47,6 +47,12 @@ Open <http://127.0.0.1:8000>. API documentation is available at <http://127.0.0.
 
 For the no-key local demo, leave `AI_PROVIDER` unset (it defaults to `rule_based_demo`). To use Anthropic, copy `.env.example` to `.env`, set a valid server-side `ANTHROPIC_API_KEY` and enabled `ANTHROPIC_MODEL`, then run the app. Never put provider keys in frontend code or commit `.env`. If question generation is unavailable, the app identifies its curated-question fallback; evaluation errors preserve saved answers so the user can retry.
 
+## Public demo on Render
+
+This repository includes a Render Blueprint for a temporary, rule-based demo. [Deploy it to Render](https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2Fpatilrushikesh8847-cyber%2FPBL), connect your GitHub account, review the Blueprint, and select **Apply**. Render will provide the public URL after the service finishes deploying.
+
+**Demo-only warning:** the Blueprint uses the free web-service plan and stores SQLite data under `/tmp`. Data may be erased whenever the service restarts or redeploys. The app also uses local demo authentication and has no production-grade rate limiting. Do not enter real passwords, personal information, or confidential interview answers. Do not enable Anthropic or add API keys to this public demo. Production deployment requires a persistent/managed database, managed authentication, and security hardening.
+
 If PowerShell blocks virtual-environment activation, run the interpreter and Uvicorn directly:
 
 ```powershell
