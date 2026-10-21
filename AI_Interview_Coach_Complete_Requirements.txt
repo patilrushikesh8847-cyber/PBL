@@ -1,0 +1,953 @@
+AI INTERVIEW COACH — COMPLETE PROJECT REQUIREMENTS AND IMPLEMENTATION
+BLUEPRINT Project name: AI Interview Coach (also previously called “AI
+interview catch”) Document purpose: Give this specification to an AI
+coding model or development team to build a secure, production-minded,
+usable web application for students and job seekers. Version: 1.0 Date:
+21 October 2026
+
+======================================================================
+0. MASTER INSTRUCTIONS FOR THE AI DEVELOPMENT MODEL
+======================================================================
+
+You are the lead software architect, senior full-stack developer, QA
+engineer, security reviewer, and technical writer for this project.
+
+Build the application from this specification in small, verifiable
+phases. Do not merely generate a mockup or static frontend. Deliver a
+working full-stack application with persistent data, authentication,
+real backend APIs, AI integration, tests, setup documentation,
+environment configuration, database migrations/schema, and deployment
+instructions.
+
+Mandatory working rules: 1. Inspect the existing repository before
+changing files. Preserve working features and explain the current
+structure. 2. Create a plan and a checklist before implementation. 3.
+Implement one phase at a time. After each phase, run relevant
+tests/build checks, fix failures, and report exactly what works, what
+does not, and what remains. 4. Never claim a feature is complete unless
+it is implemented and tested. Do not use fake success messages,
+placeholder analytics, hardcoded user records, or mock AI responses in
+production paths. 5. If credentials or external services are
+unavailable, build a clearly marked development mode, document the
+missing configuration, and do not pretend the live integration works. 6.
+Ask a concise question only when a decision is genuinely blocking.
+Otherwise choose secure, conventional defaults and document them. 7.
+Keep secrets on the server. Never expose API keys, service-role keys,
+database passwords, or privileged tokens in frontend code. 8. Prefer
+maintainable, typed, modular code, accessible UI, meaningful error
+states, and responsive layouts. 9. Provide exact commands to install,
+configure, run, test, build, and deploy the project. 10. At the end,
+provide a completion matrix against every requirement in this file, with
+statuses: COMPLETE AND TESTED, IMPLEMENTED BUT NOT FULLY VERIFIED,
+BLOCKED, or NOT IMPLEMENTED. 11. Do not silently remove requirements. If
+a requirement is unsafe, infeasible, or needs an external paid service,
+explain the trade-off and provide an alternative. 12. Build a usable MVP
+first, then add advanced capabilities in priority order. Do not attempt
+to implement every advanced feature in one untested code dump.
+
+Definition of “ready to use”: - A new user can register, verify/sign in
+as configured, complete onboarding, start an interview, answer
+questions, receive AI feedback, see saved results, and return later to
+their history. - A user’s data is isolated from other users. - Main user
+flows work on desktop and mobile. - Setup and deployment instructions
+are reproducible. - Errors, loading states, empty states, and security
+controls are implemented. - No secret keys or sensitive data are
+committed to source control. - Any external service requirement is
+clearly documented.
+
+====================================================================== 1.
+PRODUCT VISION AND TARGET USERS
+======================================================================
+
+Product: AI Interview Coach Purpose: Help students and early-career job
+seekers prepare for campus placements, internships, technical
+interviews, HR rounds, coding interviews, and company-specific
+interviews through realistic practice and actionable feedback.
+
+Target users: - College students preparing for campus placements. -
+Diploma, undergraduate, and postgraduate students. - Internship
+applicants and entry-level job seekers. - Users preparing for HR,
+behavioral, technical, coding, and aptitude rounds.
+
+Core product promise: Users practise interviews in a structured
+environment, receive evidence-based feedback on their answers,
+understand weaknesses, and follow a practical improvement plan.
+
+The application is a practice and educational tool. It must not promise
+job placement, guarantee interview success, or present AI scoring as an
+objective hiring decision.
+
+======================================================================
+2. SCOPE AND PRIORITIES
+======================================================================
+
+P0 — Required MVP; implement and test before calling the project
+usable: 1. Responsive public landing page. 2. Registration, login,
+logout, password reset, and authenticated sessions. 3. User onboarding
+and profile. 4. Dashboard with real data. 5. Interview categories:
+HR/behavioral and technical. 6. Start an interview by selecting
+category, difficulty, and number of questions. 7. AI-generated or
+curated interview questions. 8. Text-based answer submission. 9. AI
+evaluation with structured feedback and transparent scoring criteria.
+10. Interview completion summary and saved result. 11. Interview history
+and detailed result page. 12. Question bank with search/filtering. 13.
+Secure server-side AI integration. 14. Database schema, access control,
+validation, and error handling. 15. Automated tests, setup
+documentation, and deployment guide.
+
+P1 — Important next release: - Voice answer input and speech-to-text
+transcription. - Text-to-speech question playback. - Resume upload and
+resume-based interview questions. - Job description/company-role
+personalization. - Progress analytics and improvement trends. -
+Downloadable interview report. - Bookmarked questions and practice
+plan. - Daily practice challenge.
+
+P2 — Advanced capabilities: - Coding interview editor with secure code
+execution. - Aptitude and MCQ practice. - Group discussion practice. -
+Resume builder and resume review. - Adaptive difficulty based on
+performance. - Company-specific practice packs, clearly labelled as
+practice content and not leaked/confidential questions. - Optional coach
+mode with follow-up questions. - Admin/content management interface. -
+Multi-language UI and answer feedback, where supported and tested.
+
+Do not delay the P0 MVP because P1/P2 features are not ready. Clearly
+separate shipped features from planned features in the UI and
+documentation.
+
+======================================================================
+3. RECOMMENDED TECHNOLOGY STACK
+======================================================================
+
+Frontend: - React with Vite. - TypeScript preferred. - Tailwind CSS for
+styling. - React Router for navigation. - A maintained form validation
+library or typed validation approach. - Recharts for charts when real
+data exists. - Accessible reusable components. - Use a maintained
+data-fetching strategy with loading, error, and retry states.
+
+Backend: - Python with FastAPI. - Pydantic request/response schemas. -
+SQLAlchemy or another maintainable ORM. - Alembic or equivalent database
+migrations. - Structured logging and centralized exception handling. -
+API versioning, e.g. /api/v1.
+
+Database and authentication: - PostgreSQL, hosted through Supabase or
+another managed PostgreSQL provider. - Supabase Auth is the recommended
+authentication option. - Enforce user-level authorization in the backend
+and, if using Supabase directly, suitable Row Level Security policies. -
+Never trust a user_id supplied by the browser; derive identity from the
+validated session/token.
+
+AI: - Provider-neutral server-side AI service abstraction. - Use a
+configured LLM API for question generation and evaluation. - Model name
+and provider must come from server environment configuration, not
+hardcoded across the codebase. - Validate AI output against a schema.
+Retry safely or return a clear error when output is malformed. - Add
+timeouts, bounded retries, rate limits, and usage/cost logging without
+logging secrets or full sensitive answers unnecessarily. - Do not rely
+on AI for authentication, authorization, or security decisions.
+
+Voice: - Browser speech APIs may be used for optional text-to-speech
+where supported. - For speech-to-text, use a configured provider or
+supported browser API and clearly communicate browser/device
+limitations. - Always retain a text-answer fallback.
+
+File handling: - Validate file type, size, and content for resume
+uploads. - Extract PDF/DOCX text server-side using maintained
+libraries. - Store uploaded files in private storage; use short-lived
+signed access where appropriate. - Do not execute uploaded files.
+
+Coding execution: - Never run user-submitted code directly inside the
+main API server or ordinary application container. - Use a dedicated
+isolated code-execution service/sandbox with CPU, memory,
+execution-time, filesystem, and network limits. - If secure execution
+infrastructure is not available, release coding practice in
+non-executing mode or with curated output questions; do not fake
+execution.
+
+Deployment: - Frontend: Vercel, Netlify, or equivalent. - Backend: a
+platform that supports Python/FastAPI. - Database/auth/storage: Supabase
+or equivalent. - Configure HTTPS, production environment variables,
+migrations, health checks, and logs.
+
+======================================================================
+4. USER ROLES AND PERMISSIONS
+======================================================================
+
+Role 1: Guest - Can view landing page, product explanation, sample
+questions, and public FAQs. - Cannot view private user data or start a
+saved interview without signing in, unless a deliberate guest mode is
+implemented with clear limits.
+
+Role 2: Student/User - Can manage their own profile. - Can create, run,
+view, and delete their own practice sessions, subject to retention
+policy. - Can access their own reports, bookmarks, and uploaded
+resume. - Cannot access another user’s sessions, profile, files, or
+results.
+
+Role 3: Admin (optional after MVP) - Can manage curated question-bank
+content and review system health. - Must have explicit role-based
+permissions and protected admin routes. - Must not automatically have
+unrestricted access to private interview answers or resumes. Any
+operational access must be justified, minimized, and audited.
+
+Authorization must be checked server-side for every protected resource.
+Hiding a button in the frontend is not authorization.
+
+======================================================================
+5. REQUIRED USER JOURNEYS
+======================================================================
+
+Journey A — First-time user: 1. Visit landing page. 2. Read what the
+product does and its limitations. 3. Register or sign in. 4. Complete
+onboarding: education/experience level, target role, preferred interview
+categories, and optional goals. 5. Land on dashboard. 6. Start a
+practice interview. 7. Select category, difficulty, and question count.
+8. Read instructions and privacy notice. 9. Answer each question. 10.
+Submit and receive evaluation. 11. View summary, strengths, improvement
+areas, and next steps. 12. Save result automatically and return to
+history.
+
+Journey B — Returning user: 1. Sign in. 2. View real dashboard
+statistics and recent sessions. 3. Resume a saved draft if draft saving
+is implemented, or start a new session. 4. View previous interview
+feedback. 5. Compare performance over time using comparable scores and
+clearly described metrics.
+
+Journey C — Resume-based preparation (P1): 1. Open profile/resume
+section. 2. Upload a supported PDF/DOCX file. 3. See file name, size,
+upload status, and delete option. 4. Confirm that the file will be
+processed for interview preparation. 5. Extract text safely and display
+a preview where appropriate. 6. Generate role-relevant questions based
+on extracted content. 7. Let the user remove the resume and associated
+extracted text.
+
+Journey D — Voice interview (P1): 1. Request microphone permission only
+after a clear user action. 2. Show recording state and clear start/stop
+controls. 3. Show transcript for review/edit before submission when
+feasible. 4. Offer text entry if microphone or speech recognition is
+unavailable. 5. Never record in the background or imply that recording
+continues after stopping.
+
+======================================================================
+6. FRONTEND PAGES AND UI REQUIREMENTS
+======================================================================
+
+A. Public landing page: - Product name and concise value proposition. -
+Primary CTA: Start Practising. - Feature overview. - How it works
+(choose interview, answer questions, get feedback). - Supported
+categories. - Sample feedback preview labelled as an example, not real
+user data. - Privacy/security summary. - Clear note that AI feedback can
+be imperfect. - FAQ and footer with contact/support and policy links.
+
+B. Authentication pages: - Register, login, forgot password, reset
+password. - Field-level validation and useful error messages. - Password
+visibility toggle. - Loading/disabled submit states. - Avoid revealing
+whether an email account exists in security-sensitive flows where
+relevant. - Email verification if enabled by the auth provider.
+
+C. Onboarding/profile: - Display name or preferred name. - Education
+level and optional degree/field. - Target role/job title. - Experience
+level. - Skills and preferred categories. - Optional target companies. -
+Profile edit and delete account options. - Collect only data that has a
+clear product purpose.
+
+D. Dashboard: - Welcome message. - Start new interview CTA. - Counts
+based on real database records: completed sessions, practice time if
+tracked, and recent activity. - Recent interview sessions. -
+Category/difficulty quick-start cards. - Progress chart only when
+sufficient real data exists. - Helpful empty state for new users. - No
+fabricated statistics.
+
+E. Interview setup: - Category: HR/behavioral, technical, mixed. -
+Difficulty: beginner, intermediate, advanced. - Question count: sensible
+bounded choices, e.g. 5, 10, or 15. - Optional target role, skills, and
+focus areas. - Clear expected duration. - Explain that the AI coach is
+for practice, not a hiring decision.
+
+F. Interview room: - One question at a time by default. - Progress
+indicator and question number. - Question text and optional hints if the
+mode allows them. - Answer text area with sensible length limit. - Save
+draft or autosave only if reliably implemented. - Previous/next
+navigation only when it will not lose answers. - Submit answer and clear
+loading state. - Prevent accidental duplicate submissions. - Show retry
+behavior for recoverable network errors. - Do not show model
+chain-of-thought or private internal reasoning. - Optional timer must be
+clearly indicated and should not silently erase an answer. - End-session
+confirmation.
+
+G. Feedback/results page: - Overall score, if scoring is enabled, with
+clear rubric and scale. - Per-question feedback. - Strengths. -
+Improvement areas. - Example of a stronger answer or improvement
+outline. - Suggested next practice tasks. - AI-generated feedback
+disclaimer. - Date, category, difficulty, and question count. - Save
+result and return to dashboard/history. - Do not claim an answer is
+factually correct unless it has been checked against a reliable
+rubric/source.
+
+H. Question bank: - Search by keyword. - Filter by category, difficulty,
+skill, and role where metadata exists. - Question detail, suggested
+answer structure, and practice CTA. - Bookmarks (P1). - Curated content
+must be original or properly licensed; do not scrape copyrighted
+question banks unlawfully.
+
+I. History: - Sort/filter by date, category, difficulty, and status. -
+Open a session result. - Delete an individual session after
+confirmation. - Pagination or bounded loading. - Empty state and error
+state.
+
+J. Settings: - Profile settings. - Password/session management through
+auth provider. - Privacy and data deletion. - Delete account flow with
+confirmation and clear consequences. - Optional voice preferences and
+accessibility options. - Links to privacy policy and terms.
+
+K. Responsive design/accessibility: - Work on mobile, tablet, and
+desktop. - Semantic HTML, keyboard navigation, visible focus, sufficient
+contrast, accessible labels, screen-reader status messages. - Avoid
+color-only meaning. - Respect reduced-motion preferences. - Useful
+empty/loading/error states. - Do not sacrifice readability for
+decorative animation.
+
+======================================================================
+7. AI INTERVIEW ENGINE
+======================================================================
+
+Implement a modular AI service with separate functions: -
+generate_interview_questions(…) - evaluate_answer(…) -
+generate_session_summary(…) - generate_improvement_plan(…) - optionally
+generate_follow_up_question(…)
+
+Question generation inputs: - Interview category. - Target role and
+skill focus if supplied. - User experience/education level. -
+Difficulty. - Number of questions. - Optional job description or
+resume-derived facts. - Language preference if supported.
+
+Question generation output: - Question ID or stable session
+identifier. - Question text. - Category. - Difficulty. - Skills
+assessed. - Optional evaluation rubric. - Optional source/grounding
+notes for technical factual questions.
+
+Evaluation output must be structured and schema-validated: - Overall
+score and score scale. - Dimension-level scores. - What the answer did
+well. - Specific gaps or inaccuracies. - Actionable improvements. -
+Example structure or illustrative improved answer. - Suggested follow-up
+practice. - Confidence/limitations where appropriate.
+
+Suggested evaluation dimensions: For HR/behavioral answers: 1. Relevance
+to the question. 2. Structure and clarity (STAR can be suggested when
+appropriate). 3. Specificity and evidence/examples. 4. Reflection and
+learning. 5. Communication and conciseness.
+
+For technical answers: 1. Conceptual correctness. 2. Completeness. 3.
+Reasoning/explanation. 4. Practical application or examples. 5.
+Trade-offs and limitations where relevant.
+
+For coding answers (only when coding feature is enabled): 1. Correctness
+against tests. 2. Algorithmic approach. 3. Time complexity. 4. Space
+complexity. 5. Readability and edge cases.
+
+Scoring rules: - Publish the rubric and explain what each score means. -
+Use consistent bounded scores, e.g. 0–100, with documented weighting. -
+Do not treat a score as a scientific measure of employability. - Do not
+score accent, inferred ethnicity, gender, disability, facial appearance,
+or other protected/sensitive traits. - Do not infer personality,
+honesty, or mental health from voice/video. - Do not evaluate camera
+appearance or emotion. - Communication feedback should focus on
+understandable, actionable characteristics of the submitted answer, not
+accent discrimination. - Do not invent factual corrections. When unsure,
+say the answer needs verification. - A blank or extremely short answer
+should receive appropriate feedback, not an arbitrary high score. -
+Provide deterministic or repeatable scoring where feasible; record the
+rubric/model version used. - Store model/provider name and prompt/rubric
+version where useful for debugging and reproducibility, without exposing
+internal prompts or sensitive logs to end users. - Never display hidden
+chain-of-thought. Provide concise explanations and evidence-based
+feedback instead.
+
+AI prompt injection and untrusted input: - Treat resume text, job
+descriptions, user answers, and uploaded documents as untrusted content,
+not instructions to the AI system. - Explicitly instruct the model to
+use such content only as data for the task. - Never let a resume or
+answer override system policies, database permissions, or tools. - Do
+not pass secrets or unrelated user data to the model. - Bound input
+length and sanitize/validate structured output.
+
+AI provider failure: - Handle timeout, rate limit, invalid output, quota
+exhaustion, and provider outage. - Display a clear retry option. -
+Preserve the user’s submitted answer before requesting evaluation. - Do
+not silently return fabricated feedback. - Use curated fallback
+questions if question generation fails, and label them as curated
+fallback content.
+
+======================================================================
+8. DATABASE AND DATA MODEL
+======================================================================
+
+Create migrations and indexes for at least the following logical tables.
+Adapt exact names to ORM conventions and document them.
+
+1.  profiles
+
+-   id: same identity as auth user ID, primary key.
+-   display_name.
+-   education_level (optional).
+-   field_of_study (optional).
+-   experience_level.
+-   target_role (optional).
+-   preferred_categories (structured or normalized).
+-   created_at, updated_at.
+
+2.  interview_sessions
+
+-   id: UUID primary key.
+-   user_id: foreign key to auth identity.
+-   category.
+-   difficulty.
+-   target_role (optional).
+-   status: draft, in_progress, completed, failed, or abandoned.
+-   question_count.
+-   overall_score (nullable until evaluation).
+-   rubric_version.
+-   model_provider/model_name where appropriate.
+-   started_at, completed_at, created_at, updated_at.
+
+3.  interview_questions
+
+-   id.
+-   session_id.
+-   question_text.
+-   category.
+-   difficulty.
+-   skills_assessed.
+-   order_index.
+-   rubric/metadata when appropriate.
+-   created_at.
+
+4.  interview_answers
+
+-   id.
+-   session_id.
+-   question_id.
+-   user_id.
+-   answer_text or securely stored transcript reference.
+-   evaluation JSON/structured fields.
+-   score (nullable).
+-   submitted_at, evaluated_at.
+-   Include appropriate uniqueness constraints to avoid duplicate
+    answers per question where intended.
+
+5.  question_bank
+
+-   id.
+-   question_text.
+-   category.
+-   difficulty.
+-   role/skill tags.
+-   suggested answer framework or rubric.
+-   source/license metadata where relevant.
+-   is_published.
+-   created_at, updated_at.
+
+6.  bookmarks (P1)
+
+-   user_id, question_id, created_at.
+-   Unique constraint on user_id + question_id.
+
+7.  resumes (P1)
+
+-   id, user_id, private storage key, original filename, file type, file
+    size, processing status, extracted text reference or protected text,
+    created_at.
+-   Never make private resume storage publicly readable.
+
+8.  usage_events (optional, privacy-minimized)
+
+-   event type, user ID where necessary, timestamp, minimal metadata for
+    usage/cost limits.
+-   Do not store unnecessary sensitive content.
+
+Data model requirements: - Use UUIDs or other non-guessable
+identifiers. - Foreign keys, indexes, constraints, and cascading
+behavior must be intentional. - Define data retention and deletion
+behavior. - Use UTC timestamps in storage and localize in UI. - Never
+use client-supplied user IDs as proof of authorization. - Do not store
+API keys, raw passwords, or unnecessary sensitive information. - Avoid
+storing full AI prompts/responses in production logs unless necessary,
+access-controlled, redacted, and retention-limited.
+
+======================================================================
+9. BACKEND API REQUIREMENTS
+======================================================================
+
+Use consistent JSON response formats and appropriate HTTP status codes.
+Document every endpoint in OpenAPI.
+
+Suggested endpoint families (adapt paths but document the final API):
+
+Health: - GET /health - GET /ready (checks required dependencies without
+exposing secrets)
+
+Profile: - GET /api/v1/profile - PATCH /api/v1/profile - DELETE
+/api/v1/profile or documented account-deletion workflow
+
+Interview sessions: - POST /api/v1/interviews - GET /api/v1/interviews -
+GET /api/v1/interviews/{session_id} - POST
+/api/v1/interviews/{session_id}/start - POST
+/api/v1/interviews/{session_id}/answers - PATCH
+/api/v1/interviews/{session_id}/answers/{answer_id} when editing is
+supported - POST /api/v1/interviews/{session_id}/evaluate - POST
+/api/v1/interviews/{session_id}/complete - DELETE
+/api/v1/interviews/{session_id}
+
+Question bank: - GET /api/v1/questions - GET
+/api/v1/questions/{question_id} - POST
+/api/v1/questions/{question_id}/bookmark (P1) - DELETE
+/api/v1/questions/{question_id}/bookmark (P1)
+
+Reports: - GET /api/v1/interviews/{session_id}/report (P1) - Use a safe
+generated file or streaming response if PDF export is implemented.
+
+Resume (P1): - POST /api/v1/resumes - GET /api/v1/resumes - DELETE
+/api/v1/resumes/{resume_id} - POST /api/v1/resumes/{resume_id}/questions
+
+API requirements: - Validate every request and response. - Authenticate
+protected routes. - Authorize access to the specific resource. - Add
+pagination, sorting, and bounded filters. - Set request size and answer
+length limits. - Apply rate limits to login-sensitive flows and
+expensive AI endpoints. - Use idempotency or duplicate-submission
+protection where appropriate. - Do not return stack traces, database
+details, provider keys, or internal exception messages to users. -
+Configure CORS for known frontend origins, not unrestricted wildcard
+access in production. - Use HTTPS in production. - Generate OpenAPI
+documentation. - Add request IDs and structured logs while redacting
+tokens and sensitive content.
+
+======================================================================
+10. SECURITY, PRIVACY, AND RESPONSIBLE AI
+======================================================================
+
+Security is a release requirement, not an optional enhancement.
+
+Authentication and authorization: - Use a maintained authentication
+provider. - Verify JWT/session tokens correctly, including
+issuer/audience and expiry as applicable. - Enforce ownership checks for
+every session, answer, resume, report, and profile. - Add database Row
+Level Security policies if applicable and test them. - Protect admin
+routes and secrets. - Use secure cookie/token handling according to the
+chosen auth architecture.
+
+Secrets: - Store secrets in environment variables or a secret manager. -
+Include .env.example with placeholders only. - Add .env, local
+databases, private uploads, and secret files to .gitignore. - Never
+expose service-role keys or LLM keys to the frontend. - Rotate any key
+accidentally committed.
+
+Input and web security: - Validate content types and input length. -
+Prevent SQL injection using parameterized ORM queries. - Escape
+user-provided content in the UI. - Mitigate XSS, CSRF where relevant,
+SSRF in URL-fetching features, and unsafe file uploads. - Apply request
+limits and rate limiting. - Avoid arbitrary URL fetching from
+user-supplied job descriptions unless a safe, restricted fetcher is
+designed. - Set appropriate security headers.
+
+Privacy: - Publish a clear privacy notice describing what is collected,
+why, where it is stored, and which AI/speech providers receive it. -
+Obtain informed permission before microphone use or uploading resumes. -
+Allow users to delete resumes and their own interview history. -
+Implement account deletion and define deletion of linked data and
+storage objects. - Do not sell or expose personal interview answers. -
+Minimize retention of raw audio. Prefer not storing audio unless a clear
+feature requires it and consent is explicit. - Do not record video or
+infer emotion/identity. Video analysis is out of scope for MVP. -
+Provide an accessible way to report an issue or request help. - Do not
+claim legal compliance without an actual review of applicable law and
+provider terms.
+
+Responsible AI: - Make clear that feedback is AI-generated and may be
+wrong. - Avoid discriminatory or protected-trait scoring. - Do not use
+the app as an automated employment selection system. - Give useful
+explanations and suggestions rather than unsupported judgments. - Test
+across varied writing styles and language proficiency. - Provide
+human-readable error and correction paths.
+
+======================================================================
+11. NON-FUNCTIONAL REQUIREMENTS
+======================================================================
+
+Performance: - Set practical response-time targets and measure them. -
+Avoid unnecessary frontend bundles and repeated database queries. -
+Paginate histories and question lists. - Use timeouts for all external
+service calls. - Stream AI responses only if the UX and error handling
+support it; otherwise return validated structured results.
+
+Reliability: - Graceful handling of network loss and external provider
+failure. - Preserve submitted answers before evaluation where
+possible. - Health/readiness endpoints. - Database migration and
+backup/restore documentation. - No silent data loss.
+
+Scalability: - Stateless API design where practical. - Connection
+pooling. - Rate limiting and usage quotas. - Async/background jobs for
+longer tasks when needed. - Do not build complex microservices before
+the MVP requires them.
+
+Maintainability: - Typed schemas. - Clear separation of frontend,
+backend, database, and AI provider layers. - Consistent naming and
+formatting. - Linting and automated tests. - Architecture decisions
+documented. - No giant single-file application implementation.
+
+Accessibility and usability: - Keyboard access and visible focus. -
+Responsive layout. - Clear labels and validation. - Avoid reliance on
+color alone. - Support zoom and reduced motion. - Simple language and
+actionable feedback.
+
+======================================================================
+12. TESTING AND ACCEPTANCE CRITERIA
+======================================================================
+
+Testing layers: - Unit tests for validation, scoring/rubric helpers, and
+business logic. - API integration tests. - Database/authorization
+tests. - Frontend component and flow tests. - End-to-end tests for
+critical user journeys. - Security tests for cross-user data access and
+malformed input. - Build/lint/type checks in CI. - Manual smoke-test
+checklist.
+
+Minimum acceptance criteria: 1. A user can register/sign in and sign
+out. 2. An unauthenticated user cannot access private API data. 3. User
+A cannot read, modify, or delete User B’s profile, interview, answers,
+report, or resume. 4. The user can create an interview session with
+valid options. 5. Questions are returned from the configured AI service
+or clearly labelled curated fallback. 6. The user can submit an answer
+and it is persisted. 7. Evaluation returns schema-valid feedback and a
+score based on the documented rubric. 8. AI failure produces an
+understandable error and does not erase the answer. 9. Completed
+interviews appear in history after refresh and a new login. 10.
+Dashboard metrics are computed from actual records. 11. Empty, loading,
+success, and error states are present on core pages. 12. UI works at
+common mobile, tablet, and desktop widths. 13. Invalid input and
+oversized requests are rejected safely. 14. Rate limits or usage
+controls protect expensive endpoints. 15. Secrets do not appear in built
+frontend assets, Git history, or logs. 16. Database migrations can
+create a fresh database. 17. Automated tests pass in documented local/CI
+conditions. 18. Production build succeeds. 19. .env.example and README
+are complete. 20. Known limitations and incomplete features are
+documented honestly.
+
+Do not claim “production-ready” based only on a successful frontend
+build. Security, deployment configuration, operational monitoring, and
+realistic end-to-end testing still need verification.
+
+======================================================================
+13. STEP-BY-STEP IMPLEMENTATION PLAN
+======================================================================
+
+PHASE 0 — Repository audit and planning Tasks: - Inspect all files and
+identify current frontend/backend/database state. - Identify existing
+features, errors, and unfinished work. - Write PROJECT_PLAN.md and a
+checklist mapping this specification to implementation. - Record
+architecture decisions and chosen external providers. Exit criteria: -
+Existing functionality documented. - Folder structure and phased plan
+approved. - No files overwritten blindly.
+
+PHASE 1 — Project foundation Tasks: - Create clean frontend/backend
+structure or carefully adapt existing structure. - Configure formatting,
+linting, typing, environment loading, and test framework. - Add
+.gitignore and .env.example. - Add README with local development
+instructions. - Configure frontend routing and backend health endpoint.
+Exit criteria: - Frontend starts. - Backend starts. - Health endpoint
+works. - Lint/type/build/test commands are documented and runnable.
+
+PHASE 2 — Database and authentication Tasks: - Configure
+PostgreSQL/Supabase. - Create migrations for profiles and
+interview-related tables. - Configure authentication. - Implement
+protected frontend routes and backend auth dependency. - Add ownership
+checks and database policies. - Test access isolation between two users.
+Exit criteria: - Registration/login/logout works. - Protected APIs
+reject unauthenticated requests. - Cross-user access tests pass.
+
+PHASE 3 — UI shell and dashboard Tasks: - Implement responsive design
+system and navigation. - Build landing page, authentication pages,
+onboarding, profile, dashboard, settings. - Implement
+loading/error/empty states. - Use actual database data only. Exit
+criteria: - User can navigate the main pages on desktop and mobile. - No
+fabricated statistics or dead controls.
+
+PHASE 4 — Question bank and interview setup Tasks: - Seed a small
+original, licensed, curated set of HR and technical questions. - Add
+category/difficulty/skill filters. - Implement interview setup and
+session creation. - Store questions with stable ordering. Exit
+criteria: - User can browse questions and create a session. - Validation
+rejects invalid settings.
+
+PHASE 5 — Text interview room Tasks: - Show one question at a time. -
+Capture and validate answers. - Persist answer before evaluation. - Add
+progress, navigation, submit protection, and recoverable errors. -
+Support session status and completion. Exit criteria: - A complete
+text-based interview can be performed and reloaded without losing saved
+answers.
+
+PHASE 6 — AI integration and evaluation Tasks: - Implement provider
+abstraction and server-side configuration. - Build prompts and validated
+schemas for question generation/evaluation. - Add rubric versioning,
+timeout, retry, rate limit, and provider error handling. - Add clearly
+labelled curated fallback for question generation only. - Test malformed
+output, timeout, quota, and empty answer cases. Exit criteria: - A real
+configured provider produces structured questions and feedback. - No
+fabricated “successful AI” result is returned on failure. - User answer
+remains saved when evaluation fails.
+
+PHASE 7 — Results, history, and progress Tasks: - Build feedback page,
+detailed session result, history list, and dashboard calculations. - Add
+filters, pagination, and deletion. - Add charts only when enough real
+data exists. Exit criteria: - Completed sessions persist and are visible
+to the correct user only. - All displayed scores can be traced to the
+session’s rubric/version.
+
+PHASE 8 — Security and privacy hardening Tasks: - Review all protected
+routes and database policies. - Test XSS/SQL injection protections,
+upload constraints if applicable, rate limiting, CORS, secret handling,
+and logs. - Add privacy/terms pages and deletion workflows. - Check
+dependency vulnerabilities using appropriate tools. Exit criteria: -
+Security checklist passes. - No known critical issue is left
+undocumented. - Data deletion behavior is tested.
+
+PHASE 9 — P1 capabilities Implement separately, with tests, in this
+order: 1. Resume upload, extraction, private storage, deletion. 2.
+Resume/JD-based question personalization. 3. Voice input and
+transcription with text fallback. 4. Text-to-speech. 5. PDF report
+export. 6. Progress analytics and practice roadmap. 7. Bookmarks and
+daily challenge. Exit criteria: - Each feature is documented as complete
+only after its integration and tests pass.
+
+PHASE 10 — P2 capabilities Implement only after the MVP is stable: -
+Secure coding execution sandbox. - Aptitude/MCQ module. - Group
+discussion practice. - Resume builder/reviewer. - Adaptive difficulty. -
+Admin question management. Exit criteria: - Each feature has explicit
+threat modelling, acceptance tests, and usage documentation. - No unsafe
+code execution or misleading AI claims.
+
+PHASE 11 — Deployment and release Tasks: - Configure production
+frontend/backend/database/auth domains. - Set environment secrets in
+hosting provider. - Run database migrations. - Configure HTTPS, CORS,
+auth redirect URLs, logging, health checks, backups, and usage limits. -
+Run end-to-end tests against staging. - Create rollback and recovery
+instructions. Exit criteria: - A clean production deployment works. -
+Real registration, interview, evaluation, history, and deletion flows
+pass. - No development credentials or test-only shortcuts remain.
+
+PHASE 12 — Final audit and handover Tasks: - Run all tests, lint, type
+checks, and production builds. - Verify acceptance criteria one by
+one. - Update README, API docs, architecture diagram, database schema,
+known limitations, and deployment steps. - Produce a requirement
+completion matrix. - List remaining work and external
+services/credentials required. Exit criteria: - Project can be set up by
+another developer using the documentation. - Final status report is
+evidence-based and honest.
+
+======================================================================
+14. RECOMMENDED REPOSITORY STRUCTURE
+======================================================================
+
+Use a clear structure similar to:
+
+ai-interview-coach/ frontend/ src/ app/ components/ pages/ features/
+auth/ dashboard/ interviews/ question-bank/ results/ profile/ services/
+hooks/ types/ utils/ styles/ public/ tests/ package.json .env.example
+backend/ app/ main.py api/ v1/ core/ config.py security.py logging.py
+db/ session.py models/ migrations/ schemas/ services/ ai/ interviews/
+evaluation/ reports/ resumes/ repositories/ tests/ pyproject.toml or
+requirements files .env.example docs/ architecture.md api.md database.md
+security-and-privacy.md deployment.md test-plan.md .gitignore README.md
+PROJECT_PLAN.md REQUIREMENTS_TRACEABILITY.md
+
+The exact structure may differ, but separation of concerns must remain
+clear.
+
+======================================================================
+15. ENVIRONMENT CONFIGURATION
+======================================================================
+
+Create .env.example files with variable names and safe placeholders. The
+final names depend on the selected providers. Common examples:
+
+Frontend: - VITE_API_BASE_URL - VITE_SUPABASE_URL (only if the frontend
+uses Supabase client functionality) - VITE_SUPABASE_ANON_KEY
+(public/anon key only; never a service-role key)
+
+Backend: - APP_ENV - APP_SECRET_KEY or equivalent signing secret -
+DATABASE_URL - SUPABASE_URL (if needed) - SUPABASE_SERVICE_ROLE_KEY
+(server only; avoid if not needed) - AUTH/JWT verification
+configuration - LLM_PROVIDER - LLM_API_KEY - LLM_MODEL -
+AI_REQUEST_TIMEOUT_SECONDS - AI_RATE_LIMIT - CORS_ALLOWED_ORIGINS -
+STORAGE_BUCKET (if resume storage is enabled) - SPEECH_PROVIDER/API
+credentials (only if voice feature is enabled) -
+CODE_EXECUTION_PROVIDER/API credentials (only if secure coding feature
+is enabled)
+
+Do not require every variable if the selected architecture does not use
+it. Document which values are mandatory for each feature. Validate
+required settings at startup and fail with a clear configuration error
+rather than silently running a broken feature.
+
+======================================================================
+16. DOCUMENTATION AND DELIVERABLES
+======================================================================
+
+The development model must deliver: 1. Working frontend source code. 2.
+Working backend source code. 3. Database migrations/schema and seed
+data. 4. Authentication and authorization configuration. 5. .env.example
+files without real secrets. 6. README with exact setup and run commands.
+7. API documentation/OpenAPI. 8. Architecture and data-flow description.
+9. Security and privacy checklist. 10. Unit, integration, authorization,
+and end-to-end tests. 11. Deployment guide for frontend, backend,
+database, and auth. 12. Troubleshooting guide for common failures. 13.
+Requirements traceability matrix. 14. A list of external accounts, API
+keys, billing, and configuration required. 15. A final feature status
+report. 16. Known limitations and next steps. 17. No unnecessary
+generated files, unused dependencies, hardcoded credentials, or fake
+integrations.
+
+======================================================================
+17. REQUIREMENT COMPLETION MATRIX TEMPLATE
+======================================================================
+
+Create REQUIREMENTS_TRACEABILITY.md with columns: - Requirement ID -
+Requirement - Priority (P0/P1/P2) - Frontend file(s) - Backend
+endpoint/service - Database table/policy - Test(s) - Status -
+Evidence/notes
+
+Allowed statuses: - COMPLETE AND TESTED - IMPLEMENTED BUT NOT FULLY
+VERIFIED - BLOCKED - NOT IMPLEMENTED
+
+Do not mark a requirement complete based on a code file existing.
+Require test evidence or a documented manual verification.
+
+======================================================================
+18. AI MODEL / TOOL RESPONSIBILITY MATRIX
+======================================================================
+
+Important: No single AI model can guarantee the entire application is
+complete, secure, and deployable in one prompt. A model generates and
+edits code; the development environment, credentials, runtime tests, and
+human verification determine whether the product actually works.
+
+Recommended responsibility split:
+
+A. Strong coding agent/model with repository access Best for: - Auditing
+the codebase. - Creating architecture and implementation plan. - Editing
+multiple files. - Implementing React/TypeScript frontend and FastAPI
+backend. - Creating database schema/migrations. - Running tests, reading
+stack traces, and fixing integration bugs. - Updating documentation and
+completion matrix. Requirement files: PROJECT_PLAN.md, frontend/backend
+source, migrations, tests, README, REQUIREMENTS_TRACEABILITY.md.
+Completion test: It must run commands in the actual repository and show
+test/build results. A text-only answer is not proof of completion.
+
+B. Reasoning/review model Best for: - Reviewing architecture and
+requirements coverage. - Threat modelling and authorization review. -
+Checking edge cases and data model design. - Reviewing AI evaluation
+rubrics for fairness and clarity. - Auditing test coverage and
+deployment readiness. Requirement files: docs/security-and-privacy.md,
+docs/architecture.md, docs/test-plan.md, REQUIREMENTS_TRACEABILITY.md.
+Completion test: It should identify concrete files, endpoints, risks,
+and missing tests, not just say “looks good.”
+
+C. AI model/API used inside the application Best for: - Generating
+interview questions. - Evaluating answers against a defined rubric. -
+Creating summaries and practice plans. - Optional resume/JD-based
+personalization. Requirement files: backend/app/services/ai/, evaluation
+schemas/prompts, model/provider configuration. Completion test: Validate
+structured outputs and test real API calls with representative inputs,
+malformed outputs, timeouts, and quota errors.
+
+D. Speech-to-text/text-to-speech service Best for: - Optional voice
+practice. Requirement files: voice UI, speech service adapter,
+privacy/consent documentation, voice tests. Completion test: Test on
+supported browsers/devices and ensure text-only fallback works.
+
+E. Secure code execution service Best for: - Running coding interview
+submissions safely. Requirement files: coding editor, isolated execution
+adapter, limits, threat model, tests. Completion test: Confirm
+isolation, CPU/memory/time limits, network restrictions, and
+malicious-code test cases. If these cannot be verified, do not enable
+execution.
+
+F. Human developer/operator Required for: - Creating provider accounts
+and supplying credentials. - Checking billing and usage limits. -
+Setting production domains and environment variables. - Reviewing
+privacy/legal terms and applicable obligations. - Verifying deployment,
+backups, access controls, and real user journeys. Requirement files:
+deployment checklist, secrets manager/hosting settings, release
+sign-off. Completion test: A live staging/production smoke test and a
+recorded checklist.
+
+MODEL SELECTION GUIDANCE: - Choose a coding agent with strong multi-file
+repository editing and terminal/test execution for implementation. - Use
+a high-reasoning model for architecture and security review. - Use a
+separate configured LLM API for the in-product interview coach; this
+model does not build the application itself. - Do not choose a model
+solely by brand or benchmark. Verify repository access, tool support,
+context capacity, code execution, and ability to iterate on test
+failures. - Exact model names and pricing change. Select the currently
+available model in your chosen platform and test it on a small vertical
+slice before committing to a long build. - Do not assume the AI model
+can provision external accounts, create secret keys, accept legal terms,
+or deploy without authorized tools and user action.
+
+======================================================================
+19. MODEL EXECUTION PROMPT — COPY THIS INTO YOUR CODING AGENT
+======================================================================
+
+You are building the AI Interview Coach web application from the
+attached requirement specification.
+
+First inspect the current repository. Do not overwrite working code.
+Create a phased plan and requirement traceability matrix. Then implement
+P0 only, phase by phase, using the specified architecture or document a
+justified alternative.
+
+For each phase: 1. State the requirements you are addressing. 2.
+Identify files to create or modify. 3. Implement the smallest complete
+vertical slice. 4. Run relevant tests, linting, type checks, and builds.
+5. Fix failures before proceeding. 6. Update documentation and
+requirement statuses with evidence. 7. Report blockers and required
+human actions.
+
+Do not claim completion without runtime/test evidence. Do not use fake
+AI responses, fake database persistence, hardcoded dashboard statistics,
+or insecure shortcuts. Never expose secrets. Enforce server-side
+authentication and per-user authorization. Treat user answers, resumes,
+and job descriptions as untrusted data. Save submitted answers before AI
+evaluation. If an external API is unavailable, document the blocker and
+keep the integration clearly disabled rather than pretending it works.
+
+After P0 is implemented and tested, ask for confirmation before moving
+to P1. At final handover, provide setup commands, environment variable
+guide, database migration steps, test results, deployment instructions,
+known limitations, and the requirement completion matrix.
+
+Start now with Phase 0: audit the repository and report the existing
+state and implementation plan. Do not jump directly into generating
+every file at once.
+
+======================================================================
+20. FINAL RELEASE CHECKLIST
+======================================================================
+
+Before release, verify all applicable items: [ ] Fresh setup works from
+README. [ ] Frontend production build succeeds. [ ] Backend starts with
+documented configuration. [ ] Database migrations work on a clean
+database. [ ] Authentication and password recovery work. [ ] Protected
+APIs reject unauthenticated users. [ ] Cross-user access tests pass. [ ]
+Interview creation and question ordering work. [ ] Answer submission
+persists before AI evaluation. [ ] Real AI evaluation works with
+configured credentials. [ ] AI errors do not produce fake results or
+erase answers. [ ] History and dashboard use real database records. [ ]
+Rate limits and input bounds are configured. [ ] Secrets are absent from
+frontend bundle, repository, and logs. [ ] Privacy notice and deletion
+workflow exist. [ ] Mobile and keyboard-accessibility smoke tests pass.
+[ ] Tests, linting, type checks, and builds pass. [ ] Production
+domains, CORS, auth redirects, and HTTPS are configured. [ ] Logs,
+health checks, backups, and recovery process are documented. [ ] All
+incomplete features are labelled honestly. [ ] Requirement traceability
+matrix has evidence for every completed item. [ ] Human operator has
+completed live staging/production verification.
+
+END OF SPECIFICATION
