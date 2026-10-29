@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import os
+import random
 import secrets
 import sqlite3
 from contextlib import asynccontextmanager, contextmanager
@@ -296,6 +297,7 @@ def user_from_authorization(authorization: Annotated[str | None, Header()] = Non
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Sign in to continue.")
     token_hash = hashlib.sha256(authorization[7:].encode()).hexdigest()
     with connection() as db:
+        db.execute("DELETE FROM auth_tokens WHERE expires_at <= ?", (utc_now(),))
         row = db.execute(
             """SELECT users.id, users.email, users.display_name, users.education_level,
                       users.field_of_study, users.experience_level, users.target_role,
@@ -436,8 +438,18 @@ def get_session_questions(db: sqlite3.Connection, interview: sqlite3.Row) -> lis
 
 @app.post("/api/v1/interviews", status_code=201)
 def create_interview(payload: InterviewSetup, user: CurrentUser) -> dict[str, Any]:
-    matching = [question for question in QUESTION_BANK if payload.category == "mixed" or question["category"] == payload.category]
-    selected = [matching[index % len(matching)] for index in range(payload.question_count)]
+    category_matches = [
+        question for question in QUESTION_BANK
+        if payload.category == "mixed" or question["category"] == payload.category
+    ]
+    difficulty_matches = [
+        question for question in category_matches
+        if question["difficulty"] == payload.difficulty
+    ]
+    selected_pool = difficulty_matches or category_matches
+    if len(selected_pool) < payload.question_count:
+        selected_pool = category_matches
+    selected = random.sample(selected_pool, k=min(payload.question_count, len(selected_pool)))
     question_source = "curated"
     generation_notice = None
     model_provider = None
