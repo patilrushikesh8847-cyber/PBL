@@ -14,5 +14,3 @@ services:
         value: rule_based_demo
       - key: INTERVIEW_COACH_DB
         value: /tmp/interview_coach.db
-      - key: CORS_ORIGINS
-        value: https://patilrushikesh8847-cyber.github.io

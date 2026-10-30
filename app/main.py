@@ -568,6 +568,108 @@ def list_interviews(
     return {"sessions": sessions, "total": total, "page": page, "limit": limit}
 
 
+@app.get("/api/v1/analytics")
+def interview_analytics(
+    user: CurrentUser,
+    start_date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+    end_date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$"),
+) -> dict[str, Any]:
+    conditions = ["i.user_id = ?", "i.status = 'completed'", "i.completed_at IS NOT NULL"]
+    parameters: list[Any] = [user["id"]]
+    if start_date:
+        conditions.append("substr(COALESCE(i.completed_at, i.created_at), 1, 10) >= ?")
+        parameters.append(start_date)
+    if end_date:
+        conditions.append("substr(COALESCE(i.completed_at, i.created_at), 1, 10) <= ?")
+        parameters.append(end_date)
+
+    where = " AND ".join(conditions)
+    with connection() as db:
+        sessions = db.execute(
+            """SELECT i.id, i.category, i.difficulty, i.overall_score, i.completed_at, i.created_at
+               FROM interviews i WHERE """ + where + " ORDER BY COALESCE(i.completed_at, i.created_at) ASC",
+            parameters,
+        ).fetchall()
+        answer_rows = db.execute(
+            """SELECT a.score, a.answer_text, iq.skills_json, i.completed_at, i.created_at
+               FROM answers a
+               JOIN interviews i ON i.id = a.interview_id
+               JOIN interview_questions iq ON iq.session_id = i.id AND iq.id = a.question_id
+               WHERE """ + where.replace("i.", "i.", 1) + " AND a.score IS NOT NULL",
+            parameters,
+        ).fetchall()
+        question_count = db.execute(
+            """SELECT COUNT(*) FROM answers a
+               JOIN interviews i ON i.id = a.interview_id
+               WHERE """ + where + " AND TRIM(COALESCE(a.answer_text, '')) != ''",
+            parameters,
+        ).fetchone()[0]
+
+    completed_sessions = [dict(row) for row in sessions]
+    scores = [row["overall_score"] for row in completed_sessions if isinstance(row["overall_score"], (int, float))]
+    answer_scores = [int(row["score"]) for row in answer_rows if row["score"] is not None]
+    word_counts = [len((row["answer_text"] or "").split()) for row in answer_rows]
+
+    trend_by_date: dict[str, list[int]] = {}
+    for row in completed_sessions:
+        date = (row["completed_at"] or row["created_at"] or "")[:10]
+        if date and row["overall_score"] is not None:
+            trend_by_date.setdefault(date, []).append(int(row["overall_score"]))
+    trend = [
+        {"date": date, "score": round(sum(values) / len(values))}
+        for date, values in sorted(trend_by_date.items())
+    ]
+
+    skill_totals: dict[str, list[int]] = {}
+    for row in answer_rows:
+        if row["score"] is None:
+            continue
+        try:
+            skills = json.loads(row["skills_json"] or "[]")
+        except json.JSONDecodeError:
+            skills = []
+        for skill in skills:
+            if skill:
+                skill_totals.setdefault(str(skill), []).append(int(row["score"]))
+    skills = [
+        {"skill": skill, "score": round(sum(values) / len(values))}
+        for skill, values in sorted(skill_totals.items(), key=lambda item: item[0])
+    ][:6]
+
+    weekly: dict[str, int] = {}
+    for row in completed_sessions:
+        date = (row["completed_at"] or row["created_at"] or "")[:10]
+        if date:
+            weekly[date] = weekly.get(date, 0) + 1
+    activity = [{"date": date, "sessions": count} for date, count in sorted(weekly.items())][-7:]
+
+    accuracy = round(sum(answer_scores) / len(answer_scores)) if answer_scores else 0
+    confidence_values = [
+        min(100, round(25 + min(word_count, 75) * 1))
+        for word_count in word_counts
+    ]
+    confidence = round(sum(confidence_values) / len(confidence_values)) if confidence_values else 0
+
+    return {
+        "completed_sessions": len(completed_sessions),
+        "questions_answered": question_count,
+        "average_score": round(sum(scores) / len(scores)) if scores else 0,
+        "accuracy": accuracy,
+        "confidence": confidence,
+        "trend": trend,
+        "skills": skills,
+        "interviews": [
+            {
+                "label": (row["category"] or "Practice").title(),
+                "date": (row["completed_at"] or row["created_at"] or "")[:10],
+                "score": int(row["overall_score"]) if isinstance(row["overall_score"], (int, float)) else 0,
+            }
+            for row in completed_sessions[-12:]
+        ],
+        "activity": activity,
+    }
+
+
 @app.put("/api/v1/interviews/{interview_id}/answers/{question_id}")
 def save_answer(interview_id: str, question_id: str, payload: AnswerInput, user: CurrentUser) -> dict[str, bool]:
     with connection() as db:

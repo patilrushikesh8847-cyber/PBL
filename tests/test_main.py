@@ -454,3 +454,48 @@ def test_anthropic_failure_keeps_saved_answers_and_session_in_progress(tmp_path,
         assert failed.status_code == 503
         assert detail["status"] == "in_progress"
         assert detail["answers"][0]["answer_text"] == answer
+
+
+def test_dashboard_analytics_returns_real_completed_data(tmp_path, monkeypatch):
+    monkeypatch.setattr(main, "DATABASE_PATH", tmp_path / "analytics.db")
+    main.initialize_database()
+    with TestClient(main.app) as client:
+        registration = client.post(
+            "/api/v1/auth/register",
+            json={"email": "analytics@example.com", "password": "safe-passphrase-123", "display_name": "Analytics"},
+        )
+        assert registration.status_code == 201
+        headers = {"Authorization": f"Bearer {registration.json()['access_token']}"}
+
+        interview = client.post(
+            "/api/v1/interviews",
+            headers=headers,
+            json={"category": "behavioral", "difficulty": "beginner", "question_count": 1},
+        )
+        assert interview.status_code == 201
+        session = interview.json()
+        question = session["questions"][0]
+        saved = client.put(
+            f"/api/v1/interviews/{session['id']}/answers/{question['id']}",
+            headers=headers,
+            json={"answer_text": "I used clear evidence, described my contribution, and reflected on the result with a specific example."},
+        )
+        assert saved.status_code == 200
+
+        completed = client.post(f"/api/v1/interviews/{session['id']}/complete", headers=headers)
+        assert completed.status_code == 200
+
+        analytics = client.get("/api/v1/analytics", headers=headers)
+        assert analytics.status_code == 200
+        data = analytics.json()
+        assert data["completed_sessions"] == 1
+        assert data["questions_answered"] == 1
+        assert 0 <= data["average_score"] <= 100
+        assert isinstance(data["trend"], list)
+        assert isinstance(data["skills"], list)
+        assert isinstance(data["interviews"], list)
+        assert isinstance(data["activity"], list)
+
+        filtered = client.get("/api/v1/analytics?start_date=2099-01-01", headers=headers)
+        assert filtered.status_code == 200
+        assert filtered.json()["completed_sessions"] == 0
