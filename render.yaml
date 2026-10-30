@@ -3,13 +3,14 @@ services:
     name: pbl-interview-coach-demo
     runtime: python
     plan: free
+    branch: main
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /ready
-    autoDeploy: false
+    autoDeploy: true
     envVars:
       - key: APP_ENV
-        value: development
+        value: production
       - key: AI_PROVIDER
         value: rule_based_demo
       - key: INTERVIEW_COACH_DB
