@@ -10,7 +10,7 @@ services:
     autoDeploy: true
     envVars:
       - key: APP_ENV
-        value: production
+        value: development
       - key: AI_PROVIDER
         value: rule_based_demo
       - key: INTERVIEW_COACH_DB
