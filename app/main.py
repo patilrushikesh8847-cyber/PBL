@@ -20,6 +20,7 @@ from typing import Annotated, Any, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Response, status
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from dotenv import load_dotenv
 
@@ -246,9 +247,30 @@ app = FastAPI(
     description="Local MVP API; feedback is rule-based, not AI-generated.",
     lifespan=lifespan,
 )
+
+cors_origins = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:8000,http://127.0.0.1:8000",
+    ).split(",")
+    if origin.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/", include_in_schema=False)
 def home() -> FileResponse:
     return FileResponse(ROOT / "Fontend.html")
+
+
+@app.get("/config.js", include_in_schema=False)
+def frontend_config() -> FileResponse:
+    return FileResponse(ROOT / "config.js", media_type="application/javascript")
 
 
 @app.get("/health")
