@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111827">
-  <title>Interview Coach — Practice with purpose</title>
+  <title>IntelliHire — AI-Powered Adaptive Interview Intelligence</title>
   <style>
     :root{--ink:#172033;--muted:#6f7890;--navy:#111827;--primary:#635bff;--primary-2:#8b5cf6;--cyan:#3dd9eb;--paper:#f5f7fb;--line:#e8eaf1;--white:#fff;--success:#18a66a;--danger:#d84a4a;--shadow:0 18px 50px rgba(29,38,76,.10);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);font-synthesis:none}
     *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}a{text-decoration:none;color:inherit}
@@ -29,12 +29,328 @@
     @media(max-width:900px){.hero-copy{width:75%}.orbit-wrap{opacity:.55;right:-25px}.setup-layout,.interview-layout{grid-template-columns:1fr}.setup-side,.side-card{position:static}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr 1fr}}
     @media(max-width:680px){.topbar{height:66px;padding:0 14px}.brand span:last-child{display:none}.mobile-menu{display:block}.nav{position:absolute;top:66px;left:0;right:0;background:white;border-bottom:1px solid var(--line);padding:8px 12px;display:none}.nav.open{display:flex;flex-wrap:wrap}.nav-button{font-size:13px}.user-chip{margin-left:auto}.user-chip .user-name{display:none}main{padding:20px 14px 48px}.hero{padding:34px 24px;min-height:auto;border-radius:20px}.hero-copy{width:100%}.hero h1{font-size:38px}.hero-actions{flex-wrap:wrap}.hero-art{display:none}.stats,.grid,.form-grid,.result-grid{grid-template-columns:1fr}.choice-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.page-head{align-items:flex-start}.page-head h1{font-size:28px}.question-card{min-height:auto}.question-text{font-size:20px}.session-row{align-items:flex-start}.session-actions{flex-direction:column}.toolbar{flex-direction:column}.toolbar input,.toolbar select{width:100%}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+    /* Interactive polish: motion is subtle, contained, and disabled with reduced-motion settings. */
+    body{background:radial-gradient(circle at 12% 0%,rgba(99,91,255,.055),transparent 24rem),var(--paper)}
+    .cursor-glow{position:fixed;width:320px;height:320px;border-radius:50%;pointer-events:none;z-index:0;left:0;top:0;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(99,91,255,.10),rgba(61,217,235,.035) 42%,transparent 68%);filter:blur(2px);opacity:0;transition:opacity .2s}
+    .cursor-glow.visible{opacity:1}
+    .app-shell{position:relative;z-index:1}
+    .topbar{transition:box-shadow .25s,background .25s}.topbar.scrolled{box-shadow:0 10px 35px rgba(29,38,76,.08)}
+    .hero{isolation:isolate;transform-style:preserve-3d}
+    .hero-copy{transition:transform .18s ease-out}
+    .hero-art{transition:transform .18s ease-out;will-change:transform}
+    .orbit-wrap{transform:translateY(-50%)}
+    .card,.stat,.session-row{transform:perspective(900px) rotateX(var(--tilt-x,0deg)) rotateY(var(--tilt-y,0deg));transition:transform .18s ease-out,box-shadow .25s,border-color .25s}
+    .card:hover,.stat:hover,.session-row:hover{box-shadow:0 18px 42px rgba(31,42,84,.11)}
+    .button{position:relative;overflow:hidden}
+    .button:after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;left:var(--press-x,50%);top:var(--press-y,50%);background:rgba(255,255,255,.35);transform:translate(-50%,-50%) scale(0);opacity:0}
+    .button.ripple:after{animation:ripple .45s ease-out}@keyframes ripple{to{transform:translate(-50%,-50%) scale(14);opacity:0}}
+    .reveal-ready{opacity:0;transform:translateY(18px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.75,.25,1)}
+    .reveal-ready.revealed{opacity:1;transform:none}
+    @media(max-width:900px){.cursor-glow{display:none}.card,.stat,.session-row{transform:none!important}}
+
+    /* GitHub-like light landing interface */
+    :root{
+      --ink:#1f2328;--muted:#656d76;--navy:#24292f;--primary:#1f883d;
+      --primary-2:#2da44e;--cyan:#0969da;--paper:#ffffff;--line:#d0d7de;
+      --white:#ffffff;--success:#1a7f37;--danger:#cf222e;
+      --shadow:0 18px 48px rgba(140,149,159,.18);
+    }
+    body{
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 50% 28%,rgba(84,174,255,.09),transparent 28rem),
+        linear-gradient(#fff,#fff);
+    }
+    body:before{display:none}
+    .app-shell{min-height:100vh}
+    .topbar{
+      height:64px;background:rgba(255,255,255,.94);
+      border-bottom:1px solid var(--line);backdrop-filter:blur(16px);
+      padding-left:max(24px,calc((100vw - 1120px)/2));padding-right:max(24px,calc((100vw - 1120px)/2));
+    }
+    .brand{font-size:16px}.brand-mark{
+      width:38px;height:38px;border-radius:50%;background:#24292f;color:#fff;
+      box-shadow:0 4px 12px rgba(31,35,40,.12);
+    }
+    .nav{gap:7px}.nav-button{color:#656d76;border-radius:8px;padding:9px 11px}
+    .nav-button:hover,.nav-button.active{color:#1f2328;background:#f6f8fa;box-shadow:none}
+    .user-chip{background:#fff;border-color:var(--line);border-radius:999px}
+    .avatar{background:#ddf4ff;color:#0969da;border-radius:50%}
+    main{max-width:1120px;padding-top:42px}
+    .hero{
+      min-height:430px;padding:64px 56px;text-align:left;
+      border:0;border-radius:24px;
+      background:
+        linear-gradient(135deg,#f8fbff 0%,#eef6ff 58%,#f7f9fb 100%);
+      box-shadow:var(--shadow);
+    }
+    .hero:before{right:-80px;top:-170px;width:430px;height:430px;background:radial-gradient(circle,rgba(84,174,255,.18),transparent 62%)}
+    .hero:after{background-image:radial-gradient(rgba(31,35,40,.09) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent 40%,black);opacity:.6}
+    .hero-copy{width:72%}.eyebrow{color:#0969da}.hero h1{color:#1f2328;max-width:680px;font-size:58px;font-weight:800}
+    .hero p{color:#57606a;font-size:17px}.orbit-wrap{right:52px}
+    .orbit{border-color:rgba(9,105,218,.22)}.orbit.two{border-color:rgba(31,136,61,.22)}
+    .center-orb{background:#fff;color:#0969da;border:1px solid #d0d7de;box-shadow:0 18px 45px rgba(140,149,159,.22)}
+    .button{
+      border-radius:7px;padding:11px 16px;background:#1f883d;color:#fff;
+      border:1px solid rgba(31,35,40,.15);box-shadow:0 1px 0 rgba(31,35,40,.04);font-weight:600;
+    }
+    .button:hover{background:#1a7f37;box-shadow:0 6px 16px rgba(31,136,61,.18);filter:none}
+    .button.secondary,.button.ghost{background:#f6f8fa;color:#1f2328;border:1px solid #d0d7de;box-shadow:none}
+    .button.secondary:hover,.button.ghost:hover{background:#eef1f4;border-color:#afb8c1}
+    .hero .button.primary-light{background:#1f883d;color:#fff;border-color:#1f883d}
+    .hero .button.ghost{background:#fff;color:#1f2328;border-color:#d0d7de}
+    .stats{gap:16px}.stat,.card,.session-row,.empty,.back-button,.toolbar input,.toolbar select{
+      background:#fff;border-color:#d8dee4;color:#1f2328;box-shadow:0 2px 10px rgba(140,149,159,.08);
+    }
+    .stat,.feature,.session-row{border-radius:16px}
+    .stat-icon,.feature-icon{background:#f0f4f8;color:#0969da;border-radius:12px}
+    .feature:hover,.session-row:hover{border-color:#a8b3bd;box-shadow:0 14px 32px rgba(140,149,159,.16)}
+    .feature p,.muted{color:#656d76}
+    .section-title h2{font-size:24px}
+    .pill{border-radius:999px;background:#ddf4ff;color:#0969da}.pill.completed{background:#dafbe1;color:#1a7f37}.pill.progress{background:#fff8c5;color:#9a6700}
+    .notice{background:#fff8c5;border-color:#d4a72c;color:#4d3b00;border-radius:10px}.notice.blue{background:#ddf4ff;border-color:#54aeff;color:#0969da}
+    .page-head h1{font-size:40px}
+    .field input,.field select,.field textarea{background:#fff;color:#1f2328;border-color:#d0d7de;border-radius:8px}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:#0969da;box-shadow:0 0 0 3px rgba(9,105,218,.12)}
+    .choice label{background:#fff;border-color:#d0d7de;border-radius:12px}
+    .choice input:checked+label{background:#ddf4ff;border-color:#54aeff;color:#0969da;box-shadow:none}
+    .auth-wrap{max-width:400px;margin-top:48px}.auth-wrap .card{padding:28px;border-radius:16px;box-shadow:var(--shadow)}
+    .auth-wrap h1{text-align:center;font-size:24px;font-weight:600}.auth-wrap .eyebrow{text-align:center}
+    .auth-form .button{width:100%;border-radius:8px}
+    .progress{background:#eaeef2}.progress span{background:linear-gradient(90deg,#0969da,#54aeff)}
+    .question-text{color:#1f2328}.score-ring:before{background:#fff}.score-ring span{color:#0969da}
+    .toolbar input,.toolbar select{border-radius:8px}.toast{background:#24292f;border:0;border-radius:9px}
+    footer{background:#fff;border-top-color:#d8dee4;color:#656d76}
+    .cursor-glow{background:radial-gradient(circle,rgba(84,174,255,.08),rgba(31,136,61,.025) 42%,transparent 68%)}
+    /* Final GitHub-style interface pass: preserve all existing content and functionality. */
+    body{
+      background:
+        linear-gradient(rgba(208,215,222,.20) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(208,215,222,.20) 1px,transparent 1px),
+        #ffffff;
+      background-size:24px 24px,24px 24px,auto;
+    }
+    .topbar{
+      height:64px;
+      background:#ffffff;
+      border-bottom:1px solid #d8dee4;
+      box-shadow:none;
+    }
+    .brand{color:#1f2328}.brand-mark{
+      border-radius:50%;
+      background:#24292f;
+      color:#ffffff;
+      box-shadow:none;
+    }
+    .nav-button{border-radius:6px;color:#656d76}
+    .nav-button:hover,.nav-button.active{
+      color:#1f2328;background:#f6f8fa;
+    }
+    .user-chip{border-radius:999px;background:#ffffff;border-color:#d8dee4}
+    main{padding-top:48px}
+    .hero{
+      min-height:410px;
+      border:1px solid rgba(208,215,222,.78);
+      border-radius:18px;
+      background:
+        radial-gradient(circle at 78% 50%,rgba(84,174,255,.12),transparent 16rem),
+        linear-gradient(135deg,rgba(248,251,255,.96),rgba(255,255,255,.98));
+      box-shadow:0 16px 38px rgba(140,149,159,.12);
+    }
+    .hero:before{display:none}
+    .hero:after{
+      background-image:
+        linear-gradient(rgba(208,215,222,.38) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(208,215,222,.38) 1px,transparent 1px);
+      background-size:24px 24px;
+      mask-image:none;
+      opacity:.28;
+    }
+    .hero h1{color:#1f2328;font-size:56px;font-weight:800;letter-spacing:-.055em}
+    .hero p{color:#57606a}.eyebrow{color:#0969da}
+    .hero-copy{width:68%}.orbit-wrap{right:46px;opacity:.9}
+    .orbit{border-color:rgba(9,105,218,.20)}.orbit.two{border-color:rgba(31,136,61,.18)}
+    .center-orb{
+      background:#ffffff;
+      color:#0969da;
+      border:1px solid #d8dee4;
+      box-shadow:0 12px 36px rgba(140,149,159,.18);
+    }
+    .button{
+      border-radius:7px;
+      background:#1f883d;
+      border:1px solid rgba(31,35,40,.15);
+      box-shadow:0 1px 0 rgba(31,35,40,.04);
+    }
+    .button:hover{
+      background:#1a7f37;
+      box-shadow:0 0 0 3px rgba(31,136,61,.12);
+    }
+    .button.secondary,.button.ghost{
+      background:#f6f8fa;
+      color:#1f2328;
+      border:1px solid #d0d7de;
+      box-shadow:none;
+    }
+    .button.secondary:hover,.button.ghost:hover{
+      background:#eef1f4;
+      border-color:#afb8c1;
+    }
+    .hero .button.primary-light{
+      background:#1f883d;
+      color:#ffffff;
+      border-color:#1f883d;
+    }
+    .hero .button.ghost{
+      background:#ffffff;
+      color:#1f2328;
+      border-color:#d0d7de;
+    }
+    .stat,.card,.session-row,.empty,.back-button{
+      background:#ffffff;
+      border-color:#d8dee4;
+      box-shadow:0 2px 12px rgba(140,149,159,.08);
+    }
+    .stat,.feature,.session-row{border-radius:14px}
+    .stat-icon,.feature-icon{
+      border-radius:10px;
+      background:#f6f8fa;
+      color:#0969da;
+    }
+    .feature:hover,.session-row:hover{
+      border-color:#afb8c1;
+      box-shadow:0 12px 28px rgba(140,149,159,.14);
+    }
+    .feature p,.muted{color:#656d76}
+    .section-title h2{color:#1f2328;font-size:24px}
+    .pill{border-radius:999px;background:#ddf4ff;color:#0969da}
+    .pill.completed{background:#dafbe1;color:#1a7f37}
+    .pill.progress{background:#fff8c5;color:#9a6700}
+    .notice,.notice.blue{
+      border-radius:10px;
+      box-shadow:none;
+    }
+    .notice.blue{background:#ddf4ff;border-color:#54aeff;color:#0969da}
+    .field input,.field select,.field textarea,.toolbar input,.toolbar select{
+      border-radius:7px;
+      background:#ffffff;
+      border-color:#d0d7de;
+      color:#1f2328;
+      box-shadow:none;
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{
+      border-color:#0969da;
+      box-shadow:0 0 0 3px rgba(9,105,218,.12);
+    }
+    .choice label{border-radius:10px;background:#ffffff;border-color:#d0d7de}
+    .choice input:checked+label{background:#ddf4ff;border-color:#54aeff;color:#0969da}
+    .auth-wrap{max-width:400px;margin-top:44px}
+    .auth-wrap .card{
+      border-radius:14px;
+      border-color:#d8dee4;
+      box-shadow:0 16px 38px rgba(140,149,159,.16);
+    }
+    .auth-wrap h1{font-size:24px;font-weight:600;text-align:center}
+    .auth-wrap .eyebrow{text-align:center}
+    .auth-form .button{width:100%}
+    .progress{background:#eaeef2;border-radius:999px}
+    .progress span{background:#0969da;border-radius:999px}
+    .score-ring:before{background:#ffffff}
+    footer{background:#ffffff;border-top-color:#d8dee4;color:#656d76}
+    .cursor-glow{
+      background:radial-gradient(circle,rgba(84,174,255,.07),rgba(31,136,61,.018) 42%,transparent 68%);
+    }
+
+    /* Restored animated interface (undoing the GitHub theme passes). */
+    :root{
+      --ink:#172033;--muted:#6f7890;--navy:#111827;--primary:#635bff;
+      --primary-2:#8b5cf6;--cyan:#3dd9eb;--paper:#f5f7fb;--line:#e8eaf1;
+      --white:#fff;--success:#18a66a;--danger:#d84a4a;
+      --shadow:0 18px 50px rgba(29,38,76,.10);
+    }
+    body{
+      color:var(--ink);
+      background:
+        radial-gradient(circle at 15% 10%,rgba(99,91,255,.07),transparent 22rem),
+        radial-gradient(circle at 88% 82%,rgba(61,217,235,.07),transparent 22rem),
+        var(--paper);
+    }
+    body:before{display:none}
+    .topbar{height:76px;background:rgba(255,255,255,.88);border-bottom-color:rgba(232,234,241,.9);box-shadow:none}
+    .brand{font-size:17px;color:var(--ink)}.brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,var(--primary),var(--primary-2));color:white;box-shadow:0 10px 24px rgba(99,91,255,.28)}
+    .nav-button{border-radius:10px;color:var(--muted);background:transparent}
+    .nav-button:hover,.nav-button.active{color:var(--primary);background:#f0efff;box-shadow:inset 0 -2px var(--primary)}
+    .user-chip{background:white;border-color:var(--line);border-radius:999px}.avatar{background:linear-gradient(135deg,#dffaff,#e9e4ff);color:#5751c9;border-radius:50%}
+    main{max-width:1180px;padding-top:34px}
+    .hero{min-height:380px;border:0;border-radius:26px;background:linear-gradient(125deg,#151e38 0%,#252f6b 58%,#5a61d9 100%);box-shadow:var(--shadow)}
+    .hero:before{display:block;right:-100px;top:-190px;width:420px;height:420px;background:radial-gradient(circle,rgba(124,234,255,.30),transparent 62%)}
+    .hero:after{background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1px);background-size:22px 22px;mask-image:linear-gradient(90deg,transparent 40%,black);opacity:1}
+    .hero h1{color:white;font-size:clamp(38px,5vw,58px)}.hero p{color:#e4e7ff}.eyebrow{color:#9ba4ff}
+    .hero-copy{width:68%}.orbit-wrap{right:50px;opacity:1}
+    .orbit{border-color:rgba(255,255,255,.22)}.orbit.two{border-color:rgba(255,255,255,.22)}
+    .center-orb{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(185,205,255,.8));color:#414b9b;border:0;box-shadow:0 20px 60px rgba(10,18,60,.28)}
+    .button{border-radius:12px;background:linear-gradient(135deg,var(--primary),#7470ff);color:white;border:0;box-shadow:0 10px 24px rgba(99,91,255,.18)}
+    .button:hover{background:linear-gradient(135deg,var(--primary),#7470ff);box-shadow:0 14px 30px rgba(99,91,255,.24)}
+    .button.secondary,.button.ghost{background:white;color:var(--ink);border:1px solid var(--line);box-shadow:none}
+    .button.secondary:hover,.button.ghost:hover{background:#f8f9fc;border-color:#dcdffc}
+    .hero .button.primary-light{background:white;color:#292f65;border:0}.hero .button.ghost{background:#f0efff;color:#5149c8;border:0}
+    .stat,.card,.session-row,.empty,.back-button{background:white;border-color:var(--line);box-shadow:0 7px 24px rgba(31,42,84,.04)}
+    .stat,.feature,.session-row{border-radius:17px}.stat-icon,.feature-icon{border-radius:13px;background:linear-gradient(135deg,#efefff,#e6faff);color:#5551ce}
+    .feature:hover,.session-row:hover{border-color:#dcdffc;box-shadow:var(--shadow)}
+    .feature p,.muted{color:var(--muted)}.section-title h2{color:var(--ink);font-size:21px}
+    .pill{border-radius:99px;background:#efefff;color:#5149c8}.pill.completed{background:#eaf8f1;color:#1b8052}.pill.progress{background:#fff5df;color:#96701c}
+    .notice{border-radius:12px;background:#fffaf0;border-color:#e9dbb2;color:#745a1d}.notice.blue{background:#f4f5ff;border-color:#d9dfff;color:#44519a}
+    .field input,.field select,.field textarea,.toolbar input,.toolbar select{border-radius:10px;background:white;border-color:var(--line);color:var(--ink);box-shadow:none}
+    .choice label{border-radius:14px;background:white;border-color:var(--line)}.choice input:checked+label{background:#f0efff;border-color:#8e88ff;color:#5149c8}
+    .auth-wrap{max-width:480px}.auth-wrap .card{border-radius:20px;border-color:var(--line);box-shadow:var(--shadow)}
+    .auth-wrap h1{font-size:34px;font-weight:800;text-align:left}.auth-wrap .eyebrow{text-align:left}
+    .progress{background:#eef0f6;border-radius:999px}.progress span{background:linear-gradient(90deg,var(--primary),var(--cyan));border-radius:999px}
+    .score-ring:before{background:white}.score-ring span{color:var(--primary)}
+    footer{background:white;border-top-color:var(--line);color:var(--muted)}
+    .cursor-glow{background:radial-gradient(circle,rgba(99,91,255,.095),rgba(61,217,235,.035) 42%,transparent 68%)}
+
+    /* IntelliHire premium dark landing theme */
+    :root{--ih-bg:#05070a;--ih-panel:#0b0e13;--ih-line:rgba(255,255,255,.09);--ih-text:#f4f7fb;--ih-muted:#99a1af}
+    html{scroll-behavior:smooth}
+    body{color:var(--ih-text)!important;background:radial-gradient(circle at 50% -10%,rgba(124,156,255,.12),transparent 28rem),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px),var(--ih-bg)!important;background-size:auto,52px 52px,52px 52px,auto!important}
+    .cursor-glow{z-index:40;background:radial-gradient(circle,rgba(124,156,255,.13),rgba(100,233,211,.05) 36%,transparent 68%)}
+    .app-shell{background:transparent}.topbar{height:72px!important;background:rgba(5,7,10,.78)!important;border-bottom:1px solid var(--ih-line)!important;backdrop-filter:blur(18px)!important;padding-left:max(24px,calc((100vw - 1180px)/2))!important;padding-right:max(24px,calc((100vw - 1180px)/2))!important}
+    .brand{color:var(--ih-text)!important;font-size:16px!important}.brand-mark{width:36px!important;height:36px!important;border-radius:10px!important;background:linear-gradient(135deg,#7c9cff,#64e9d3)!important;box-shadow:0 0 24px rgba(124,156,255,.28)!important}
+    .nav{gap:2px!important}.nav-button{color:#aeb5c2!important;border-radius:8px!important;font-size:13px!important;font-weight:650!important}.nav-button:hover,.nav-button.active{color:white!important;background:rgba(255,255,255,.06)!important;box-shadow:none!important}
+    .nav .button{margin-left:8px;padding:9px 14px!important;border-radius:8px!important;font-size:13px!important}.nav-login{border:0;background:transparent;color:#aeb5c2;padding:9px 10px}
+    main{max-width:1180px!important;padding-top:0!important;width:100%!important}footer{background:#05070a!important;border-top:1px solid var(--ih-line)!important;color:#7f8795!important}
+    .premium-page{overflow:hidden}.premium-wrap{width:min(1180px,calc(100% - 44px));margin:auto}
+    .landing-hero{position:relative;min-height:690px;display:grid;grid-template-columns:1.08fr .92fr;align-items:center;padding:76px 0 54px;isolation:isolate}
+    .landing-hero:before{content:"";position:absolute;width:520px;height:520px;left:-220px;top:-180px;border-radius:50%;background:radial-gradient(circle,rgba(124,156,255,.12),transparent 68%);filter:blur(12px);z-index:-1}
+    .landing-hero:after{content:"";position:absolute;inset:0 0 0 48%;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1px);background-size:18px 18px;mask-image:radial-gradient(circle,black,transparent 68%);z-index:-1}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ih-line);border-radius:999px;background:rgba(255,255,255,.035);padding:7px 11px;color:#bbc3d1;font-size:12px}.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#64e9d3;box-shadow:0 0 14px #64e9d3}
+    .landing-hero h1{font-size:clamp(48px,6vw,78px);line-height:.98;letter-spacing:-.065em;margin:20px 0 24px;max-width:760px}.gradient-text{background:linear-gradient(100deg,#fff 12%,#aebfff 54%,#64e9d3 92%);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .landing-hero-copy>p{max-width:590px;color:#adb5c3;font-size:18px;line-height:1.75;margin:0 0 30px}.hero-actions{display:flex;gap:12px}
+    .premium-primary,.premium-secondary{height:48px;border-radius:9px;padding:0 18px;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-weight:750;font-size:14px;border:1px solid transparent}
+    .premium-primary{color:#07100b!important;background:linear-gradient(135deg,#9ff5df,#64e9d3)!important;box-shadow:0 12px 36px rgba(100,233,211,.16)!important;border-color:rgba(255,255,255,.14)!important}.premium-primary:hover{transform:translateY(-2px);box-shadow:0 16px 44px rgba(100,233,211,.24)!important}
+    .premium-secondary{color:#eef2f8!important;background:rgba(255,255,255,.045)!important;border-color:var(--ih-line)!important}.premium-secondary:hover{background:rgba(255,255,255,.08)!important;border-color:rgba(255,255,255,.16)!important}
+    .hero-proof{display:flex;align-items:center;gap:12px;margin-top:28px;color:#7f8795;font-size:12px}.proof-avatars{display:flex}.proof-avatars span{width:28px;height:28px;border-radius:50%;border:2px solid var(--ih-bg);margin-left:-7px;background:linear-gradient(135deg,#3d4660,#7c9cff);display:grid;place-items:center;color:white;font-size:10px}.proof-avatars span:first-child{margin-left:0}
+    .dashboard-preview{position:relative;padding:18px;border:1px solid var(--ih-line);border-radius:18px;background:linear-gradient(145deg,rgba(18,23,31,.92),rgba(8,11,15,.92));box-shadow:0 32px 100px rgba(0,0,0,.55),0 0 0 1px rgba(124,156,255,.04) inset;transform:perspective(1200px) rotateY(-4deg) rotateX(2deg);transition:transform .2s ease-out}
+    .preview-bar{height:38px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ih-line);padding:0 4px 10px}.preview-dots{display:flex;gap:5px}.preview-dots span{width:7px;height:7px;border-radius:50%;background:#303744}.preview-status{color:#64e9d3;font-size:10px;border:1px solid rgba(100,233,211,.14);background:rgba(100,233,211,.06);padding:5px 8px;border-radius:999px}
+    .preview-grid{display:grid;grid-template-columns:1.55fr .75fr;gap:10px;padding-top:10px}.preview-main,.preview-side{border:1px solid var(--ih-line);border-radius:11px;background:rgba(255,255,255,.018)}.preview-main{padding:16px}.preview-kicker{color:#8e98a8;font-size:9px;text-transform:uppercase;letter-spacing:.12em}.preview-question{font-size:15px;line-height:1.5;margin:12px 0 15px}
+    .audio-wave{height:42px;border-radius:8px;background:rgba(124,156,255,.05);display:flex;align-items:center;justify-content:center;gap:3px}.audio-wave i{width:3px;border-radius:3px;background:linear-gradient(#7c9cff,#64e9d3);animation:wave 1.3s ease-in-out infinite}.audio-wave i:nth-child(1),.audio-wave i:nth-child(7){height:12px}.audio-wave i:nth-child(2),.audio-wave i:nth-child(6){height:22px;animation-delay:.15s}.audio-wave i:nth-child(3),.audio-wave i:nth-child(5){height:31px;animation-delay:.3s}.audio-wave i:nth-child(4){height:38px;animation-delay:.45s}@keyframes wave{50%{transform:scaleY(.5);opacity:.55}}
+    .preview-metric{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding:10px;border:1px solid var(--ih-line);border-radius:9px}.score-ring-mini{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at center,#11151b 58%,transparent 59%),conic-gradient(#64e9d3 82%,#242a34 0);font-size:11px;font-weight:800}.preview-metric strong{font-size:11px;display:block}.preview-metric small{color:#858e9c;font-size:9px}.preview-side{padding:10px}.preview-side h4{font-size:10px;margin:4px 0 12px}.skill-row{margin:9px 0}.skill-row div{display:flex;justify-content:space-between;font-size:9px;color:#9ea7b6;margin-bottom:5px}.skill-track{height:4px;border-radius:9px;background:#20252d;overflow:hidden}.skill-track span{height:100%;display:block;border-radius:9px;background:linear-gradient(90deg,#7c9cff,#64e9d3)}
+    .landing-section{padding:100px 0;border-top:1px solid var(--ih-line)}.section-heading{text-align:center;max-width:700px;margin:0 auto 46px}.section-label{color:#64e9d3;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.16em}.section-heading h2{font-size:clamp(34px,4vw,52px);line-height:1.08;letter-spacing:-.045em;margin:12px 0 16px}.section-heading p{color:#9da6b5;line-height:1.7;margin:0}
+    .feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.premium-feature{position:relative;padding:26px;border:1px solid var(--ih-line);border-radius:14px;background:linear-gradient(145deg,rgba(255,255,255,.035),rgba(255,255,255,.012));min-height:210px;overflow:hidden;transition:.25s ease}.premium-feature:before{content:"";position:absolute;width:120px;height:120px;right:-50px;top:-60px;border-radius:50%;background:rgba(124,156,255,.08);filter:blur(20px);opacity:0;transition:.25s}.premium-feature:hover{transform:translateY(-6px);border-color:rgba(124,156,255,.28);box-shadow:0 20px 50px rgba(0,0,0,.25)}.premium-feature:hover:before{opacity:1}.feature-symbol{width:42px;height:42px;border-radius:10px;border:1px solid var(--ih-line);display:grid;place-items:center;color:#aebfff;background:rgba(124,156,255,.06);font-size:18px}.premium-feature h3{font-size:17px;margin:20px 0 9px}.premium-feature p{color:#929baa;font-size:14px;line-height:1.65;margin:0}
+    .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.how-card{padding:24px;border-left:1px solid var(--ih-line);min-height:180px}.how-number{font-family:ui-monospace,monospace;color:#64e9d3;font-size:12px}.how-card h3{font-size:19px;margin:18px 0 10px}.how-card p{color:#929baa;font-size:14px;line-height:1.65;margin:0}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--ih-line);border-radius:14px;background:rgba(255,255,255,.018)}.premium-stat{padding:30px;text-align:center;border-right:1px solid var(--ih-line)}.premium-stat:last-child{border-right:0}.premium-stat strong{display:block;font-size:38px;letter-spacing:-.04em;background:linear-gradient(135deg,#fff,#9db2ff);-webkit-background-clip:text;background-clip:text;color:transparent}.premium-stat span{display:block;color:#929baa;font-size:12px;margin-top:7px}
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.testimonial{border:1px solid var(--ih-line);border-radius:14px;padding:24px;background:rgba(255,255,255,.018)}.testimonial-stars{color:#64e9d3;letter-spacing:3px;font-size:11px}.testimonial p{color:#c0c6d1;font-size:14px;line-height:1.75;margin:16px 0 20px}.testimonial-person{display:flex;align-items:center;gap:10px}.testimonial-person span{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#7c9cff,#64e9d3);color:#07100b;font-weight:900}.testimonial-person strong{font-size:13px;display:block}.testimonial-person small{color:#818a99;font-size:11px}
+    .landing-footer{padding:38px 0 26px}.footer-grid{display:grid;grid-template-columns:2fr repeat(3,1fr);gap:30px}.footer-brand p{color:#858e9c;font-size:13px;line-height:1.65;max-width:300px}.footer-col strong{display:block;font-size:12px;margin-bottom:14px}.footer-col a{display:block;color:#858e9c;font-size:13px;margin:9px 0}.footer-bottom{border-top:1px solid var(--ih-line);margin-top:30px;padding-top:20px;display:flex;justify-content:space-between;color:#707886;font-size:11px}
+    .button.danger,.button.secondary,.button.ghost,.field input,.field select,.field textarea,.card,.stat,.session-row,.empty,.back-button,.toolbar input,.toolbar select,.auth-wrap .card,.notice{background-color:var(--ih-panel)!important;border-color:var(--ih-line)!important;color:var(--ih-text)!important;box-shadow:none!important}.field input,.field select,.field textarea,.toolbar input,.toolbar select{color:var(--ih-text)!important}.muted,.section-title p,.feature p,.session-row small{color:var(--ih-muted)!important}.button{border-radius:8px!important}.choice label{background:var(--ih-panel)!important;border-color:var(--ih-line)!important}
+    @media(max-width:980px){.landing-hero{grid-template-columns:1fr;padding-top:60px}.dashboard-preview{max-width:620px;width:100%;margin-top:20px;transform:none}.landing-hero-copy{text-align:center}.landing-hero-copy>p{margin-left:auto;margin-right:auto}.hero-actions,.hero-proof{justify-content:center}.feature-grid,.testimonials{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}.premium-stat:nth-child(2){border-right:0}.premium-stat:nth-child(-n+2){border-bottom:1px solid var(--ih-line)}.footer-grid{grid-template-columns:2fr 1fr 1fr}}
+    @media(max-width:720px){.topbar{height:64px!important}.nav{position:absolute;display:none!important;top:64px;left:0;right:0;padding:16px;background:#080b0f;border-bottom:1px solid var(--ih-line)}.nav.open{display:flex!important;flex-direction:column;align-items:stretch}.nav-button,.nav-login{width:100%;text-align:left}.nav .button{margin:5px 0!important}.mobile-menu{display:grid!important;color:#dce2ec!important}.landing-hero{min-height:auto;padding:54px 0 70px}.landing-hero h1{font-size:44px}.landing-hero-copy>p{font-size:16px}.hero-actions{flex-direction:column}.premium-primary,.premium-secondary{width:100%}.dashboard-preview{padding:10px}.preview-grid{grid-template-columns:1fr}.preview-side{display:none}.landing-section{padding:70px 0}.feature-grid,.how-grid,.testimonials{grid-template-columns:1fr}.how-card{border-left:0;border-top:1px solid var(--ih-line)}.stats-grid{grid-template-columns:1fr 1fr}.premium-stat{padding:22px 10px}.premium-stat strong{font-size:30px}.footer-grid{grid-template-columns:1fr 1fr}.footer-brand{grid-column:1/-1}.footer-bottom{flex-direction:column;gap:8px}.premium-wrap{width:calc(100% - 32px)}}
   </style>
 </head>
 <body>
 <div class="app-shell">
   <header class="topbar">
-    <a href="#" class="brand" data-view="home"><span class="brand-mark" id="brandIcon"></span><span>Interview Coach</span></a>
+    <a href="#" class="brand" data-view="home"><span class="brand-mark" id="brandIcon"></span><span>IntelliHire</span></a>
     <button class="icon-button mobile-menu" id="mobileMenu" aria-label="Toggle navigation"></button>
     <nav class="nav" id="nav"></nav>
   </header>
@@ -50,9 +366,9 @@ const icons={spark:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" s
 document.querySelector("#brandIcon").innerHTML=icons.spark;document.querySelector("#mobileMenu").innerHTML=icons.menu;
 const escapeHtml=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
 function notify(message){const t=document.querySelector("#toast");t.textContent=message;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3200)}
-async function api(path,options={}){const token=localStorage.getItem("interviewCoachToken");const response=await fetch(`${API}${path}`,{...options,headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{}),...options.headers}});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.detail||"The request could not be completed.");return body}
+async function api(path,options={}){const token=localStorage.getItem("interviewCoachToken");const headers={"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})};const response=await fetch(`${API}${path}`,{...options,headers:{...headers,...(options.headers||{})}});const body=await response.json().catch(()=>({}));if(!response.ok)throw new Error(body.detail||"The request could not be completed.");return body}
 function shellTitle(eyebrow,title,copy="",action=""){return `<div class="page-head"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1>${copy?`<p class="muted">${copy}</p>`:""}</div>${action}</div>`}
-async function renderNav(){nav.innerHTML=state.user?`<button class="nav-button ${state.view==="home"?"active":""}" data-view="home">Home</button><button class="nav-button ${state.view==="bank"?"active":""}" data-view="bank">Question bank</button><button class="nav-button ${state.view==="history"?"active":""}" data-view="history">History</button><div class="user-chip"><span class="avatar">${escapeHtml(state.user.display_name?.[0]?.toUpperCase()||"U")}</span><button class="nav-button user-name" data-view="profile">${escapeHtml(state.user.display_name)}</button><button class="icon-button" id="logout" aria-label="Sign out">${icons.logout}</button></div>`:`<button class="nav-button" data-view="auth">Sign in / Register</button>`;document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();go(el.dataset.view)}));document.querySelector("#logout")?.addEventListener("click",logout);nav.classList.remove("open")}
+renderNav=async function(){nav.innerHTML=state.user?`<button class="nav-button ${state.view==="home"?"active":""}" data-view="home">Home</button><button class="nav-button" data-anchor="features">Features</button><button class="nav-button" data-view="setup">Practice Interview</button><button class="nav-button" data-view="history">Dashboard</button><button class="nav-button" data-anchor="about">About</button><div class="user-chip"><span class="avatar">${escapeHtml(state.user.display_name?.[0]?.toUpperCase()||"U")}</span><button class="nav-button user-name" data-view="profile">${escapeHtml(state.user.display_name)}</button><button class="icon-button" id="logout" aria-label="Sign out">${icons.logout}</button></div>`:`<button class="nav-button" data-view="home">Home</button><button class="nav-button" data-anchor="features">Features</button><button class="nav-button" data-view="auth">Practice Interview</button><button class="nav-button" data-view="auth">Dashboard</button><button class="nav-button" data-anchor="about">About</button><button class="nav-login" data-view="auth">Login</button><button class="button premium-primary" data-view="auth">Get Started</button>`;document.querySelectorAll("[data-view]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();go(el.dataset.view)}));document.querySelectorAll("[data-anchor]").forEach(el=>el.addEventListener("click",()=>{if(state.view!=="home")go("home").then(()=>setTimeout(()=>document.querySelector(`#${el.dataset.anchor}`)?.scrollIntoView({behavior:"smooth"}),80));else document.querySelector(`#${el.dataset.anchor}`)?.scrollIntoView({behavior:"smooth"})}));document.querySelector("#logout")?.addEventListener("click",logout);nav.classList.remove("open")}
 async function loadUser(){const token=localStorage.getItem("interviewCoachToken");if(!token){state.user=null;await renderNav();return}try{state.user=await api("/profile")}catch{localStorage.removeItem("interviewCoachToken");state.user=null}await renderNav()}
 async function go(view){state.view=view;if(view==="home")await renderHome();else if(view==="auth")renderAuth();else if(view==="setup")renderSetup();else if(view==="interview")renderInterview();else if(view==="result")renderResult();else if(view==="history")await renderHistory();else if(view==="bank")await renderBank();else if(view==="profile")await renderProfile();await renderNav();app.focus({preventScroll:true});window.scrollTo({top:0,behavior:"smooth"})}
 async function renderHome(){if(!state.user){app.innerHTML=`<div class="page"><section class="hero"><div class="hero-copy"><div class="eyebrow">Your personal practice space</div><h1>Speak clearly.<br>Think confidently.</h1><p>Build interview-ready stories, sharpen technical explanations, and get useful feedback from every practice session.</p><div class="hero-actions"><button class="button primary-light" data-go="auth">Start practising ${icons.arrow}</button><button class="button ghost" data-go="bank">Explore questions</button></div></div><div class="hero-art"><div class="orbit-wrap"><div class="orbit"></div><div class="orbit two"></div><div class="center-orb">✦</div></div></div></section><div class="section-title"><div><h2>Designed for better practice</h2><p>A focused experience without distractions.</p></div></div><section class="grid"><article class="card feature fade-up"><span class="feature-icon">${icons.spark}</span><h3>Original questions</h3><p>Practise curated behavioral and technical prompts with clear difficulty levels.</p></article><article class="card feature fade-up delay-1"><span class="feature-icon">${icons.trend}</span><h3>Actionable feedback</h3><p>Review strengths, improvements, and transparent rule-based or AI feedback.</p></article><article class="card feature fade-up delay-2"><span class="feature-icon">${icons.history}</span><h3>Saved progress</h3><p>Return to complete sessions and review your interview history anytime.</p></article></section><div class="notice blue"><strong>Transparent by design:</strong> AI mode is server-configured and optional. Otherwise, feedback comes from a simple rule-based demo—not factual or hiring evaluation.</div></div>`;bindDataViews();return}app.innerHTML=`<div class="page"><div class="page-head"><div><div class="eyebrow">Practice dashboard</div><h1>Welcome back, ${escapeHtml(state.user.display_name)}</h1><p class="muted">Choose a focus and build momentum, one answer at a time.</p></div><button class="button" data-go="setup">New interview ${icons.arrow}</button></div><div class="stats" id="stats"><article class="stat fade-up"><div><div class="stat-label">Completed sessions</div><div class="stat-value">—</div></div><span class="stat-icon">${icons.check}</span></article><article class="stat fade-up delay-1"><div><div class="stat-label">Questions answered</div><div class="stat-value">—</div></div><span class="stat-icon">${icons.edit}</span></article><article class="stat fade-up delay-2"><div><div class="stat-label">Average score</div><div class="stat-value">—</div></div><span class="stat-icon">${icons.trend}</span></article></div><div class="section-title"><div><h2>Choose your practice mode</h2><p>Start with a format that matches your goal.</p></div></div><section class="grid"><article class="card feature fade-up"><span class="pill">Behavioral</span><h3>Tell your story</h3><p>Communication, teamwork, ownership, and reflection.</p><button class="link-button" data-quick="behavioral">Practise behavioral ${icons.arrow}</button></article><article class="card feature fade-up delay-1"><span class="pill">Technical</span><h3>Explain your thinking</h3><p>Databases, systems, APIs, and computer science basics.</p><button class="link-button" data-quick="technical">Practise technical ${icons.arrow}</button></article><article class="card feature fade-up delay-2"><span class="pill">Question bank</span><h3>Explore first</h3><p>Search and filter original sample questions.</p><button class="link-button" data-go="bank">Browse questions ${icons.arrow}</button></article></section><div class="section-title"><div><h2>Recent sessions</h2><p>Your latest saved practice.</p></div><button class="link-button" data-go="history">View history ${icons.arrow}</button></div><div class="activity" id="recent"><div class="empty">Loading sessions…</div></div></div>`;bindDataViews();try{const {sessions}=await api("/interviews");const done=sessions.filter(s=>s.status==="completed");const scores=done.map(s=>s.overall_score).filter(v=>typeof v==="number");const values=document.querySelectorAll(".stat-value");values[0].textContent=done.length;values[1].textContent=done.reduce((n,s)=>n+s.question_count,0);values[2].textContent=scores.length?`${Math.round(scores.reduce((a,b)=>a+b,0)/scores.length)}%`:"—";document.querySelector("#recent").innerHTML=sessions.slice(0,4).map(s=>`<div class="session-row"><div><strong>${escapeHtml(s.category)} · ${escapeHtml(s.difficulty)}</strong><small>${escapeHtml(s.created_at?.replace("T"," · ").slice(0,17)||"")} · ${s.question_count} questions</small></div><div class="session-actions"><span class="pill ${s.status==="completed"?"completed":"progress"}">${s.status==="completed"?"Completed":"In progress"}</span><button class="button small secondary" data-session="${escapeHtml(s.id)}">${s.status==="completed"?"Review":"Continue"}</button></div></div>`).join("")||`<div class="empty">No sessions yet. Create your first interview to begin.</div>`;document.querySelectorAll("[data-session]").forEach(b=>b.addEventListener("click",()=>openSession(b.dataset.session))) }catch(error){document.querySelector("#recent").innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}
@@ -66,7 +382,21 @@ function renderResult(){const result=state.result;if(!result){go("home");return}
 async function renderHistory(){app.innerHTML=`<div class="page"><div class="page-head"><div><div class="eyebrow">Saved practice</div><h1>Interview history</h1><p class="muted">Review progress and revisit sessions.</p></div><button class="button" data-go="setup">New interview ${icons.arrow}</button></div><div class="toolbar"><select id="history-status"><option value="">All statuses</option><option value="in_progress">In progress</option><option value="completed">Completed</option></select><select id="history-category"><option value="">All categories</option><option value="behavioral">Behavioral</option><option value="technical">Technical</option><option value="mixed">Mixed</option></select></div><div id="history-list" class="activity"><div class="empty">Loading history…</div></div></div>`;bindDataViews();async function load(){const status=document.querySelector("#history-status").value,category=document.querySelector("#history-category").value;try{const params=new URLSearchParams({limit:"100"});if(status)params.set("status",status);if(category)params.set("category",category);const {sessions}=await api(`/interviews?${params}`);document.querySelector("#history-list").innerHTML=sessions.map(s=>`<div class="session-row"><div><strong>${escapeHtml(s.category)} · ${escapeHtml(s.difficulty)}</strong><small>${escapeHtml(s.created_at?.replace("T"," · ").slice(0,17)||"")} · Score: ${s.overall_score??"—"}</small></div><div class="session-actions"><span class="pill ${s.status==="completed"?"completed":"progress"}">${s.status==="completed"?"Completed":"In progress"}</span><button class="button small secondary" data-session="${escapeHtml(s.id)}">${s.status==="completed"?"Review":"Continue"}</button><button class="button small danger" data-delete="${escapeHtml(s.id)}">Delete</button></div></div>`).join("")||`<div class="empty">No interviews match these filters.</div>`;document.querySelectorAll("[data-session]").forEach(b=>b.addEventListener("click",()=>openSession(b.dataset.session)));document.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",async()=>{if(!confirm("Delete this interview and its answers?"))return;try{await api(`/interviews/${b.dataset.delete}`,{method:"DELETE"});notify("Interview deleted.");load()}catch(error){notify(error.message)}}))}catch(error){document.querySelector("#history-list").innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}document.querySelector("#history-status").addEventListener("change",load);document.querySelector("#history-category").addEventListener("change",load);load()}
 async function renderBank(){app.innerHTML=`<div class="page">${shellTitle("Practice library","Question bank","Search original questions by category, difficulty, or skill.")}<div class="toolbar"><input id="bank-search" maxlength="120" placeholder="Search questions…"><select id="bank-category"><option value="">All categories</option><option value="behavioral">Behavioral</option><option value="technical">Technical</option></select><select id="bank-difficulty"><option value="">All levels</option><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></div><div id="bank-list" class="activity"><div class="empty">Loading questions…</div></div></div>`;async function load(){const params=new URLSearchParams({limit:"100"});const q=document.querySelector("#bank-search").value.trim(),category=document.querySelector("#bank-category").value,difficulty=document.querySelector("#bank-difficulty").value;if(q)params.set("q",q);if(category)params.set("category",category);if(difficulty)params.set("difficulty",difficulty);try{const data=await api(`/questions?${params}`);document.querySelector("#bank-list").innerHTML=data.questions.map(question=>`<article class="session-row"><div><strong>${escapeHtml(question.question_text)}</strong><small>${escapeHtml(question.category)} · ${escapeHtml(question.difficulty)} · ${escapeHtml(question.skills.join(" · "))}</small></div><span class="pill">${escapeHtml(question.id)}</span></article>`).join("")||`<div class="empty">No questions match your search.</div>`}catch(error){document.querySelector("#bank-list").innerHTML=`<div class="empty">${escapeHtml(error.message)}</div>`}}for(const id of ["bank-search","bank-category","bank-difficulty"]){document.querySelector(`#${id}`).addEventListener(id==="bank-search"?"input":"change",load)}load()}
 async function renderProfile(){const user=await api("/profile");app.innerHTML=`<div class="page"><div class="auth-wrap"><div class="card"><div class="eyebrow">Account settings</div><h1>Your profile</h1><form class="auth-form" id="profile-form"><div class="field"><label>Display name</label><input name="display_name" maxlength="80" value="${escapeHtml(user.display_name)}"></div><div class="field"><label>Education level</label><input name="education_level" maxlength="80" value="${escapeHtml(user.education_level||"")}"></div><div class="field"><label>Field of study</label><input name="field_of_study" maxlength="100" value="${escapeHtml(user.field_of_study||"")}"></div><div class="field"><label>Experience level</label><select name="experience_level"><option value="student" ${(user.experience_level||"")==="student"?"selected":""}>Student</option><option value="entry_level" ${(user.experience_level||"")==="entry_level"?"selected":""}>Entry level</option><option value="early_career" ${(user.experience_level||"")==="early_career"?"selected":""}>Early career</option></select></div><div class="field"><label>Target role</label><input name="target_role" maxlength="100" value="${escapeHtml(user.target_role||"")}"></div><button class="button">Save profile</button></form><hr style="border:0;border-top:1px solid var(--line);margin:22px 0"><button class="button danger" id="delete-account">Delete account and data</button></div></div></div>`;document.querySelector("#profile-form").addEventListener("submit",async e=>{e.preventDefault();const form=new FormData(e.currentTarget),payload={display_name:form.get("display_name"),education_level:form.get("education_level")||null,field_of_study:form.get("field_of_study")||null,experience_level:form.get("experience_level")||null,target_role:form.get("target_role")||null};try{const updated=await api("/profile",{method:"PATCH",body:JSON.stringify(payload)});state.user=updated;await renderNav();notify("Profile updated.")}catch(error){notify(error.message)}});document.querySelector("#delete-account").addEventListener("click",async()=>{if(!confirm("Permanently delete your account, interviews, and answers?"))return;try{await api("/profile",{method:"DELETE"});localStorage.removeItem("interviewCoachToken");state.user=null;notify("Account deleted.");await go("home") }catch(error){notify(error.message)}})}
-document.querySelector("#mobileMenu").addEventListener("click",()=>nav.classList.toggle("open"));loadUser().then(()=>go("home"));
+renderHome=async function(){
+  if(state.user){ /* Preserve the real authenticated dashboard implementation by showing the existing home view. */
+    const original=""; await renderNav();
+  }
+  app.innerHTML=`<div class="premium-page"><section class="landing-hero premium-wrap"><div class="landing-hero-copy"><div class="hero-badge"><span class="hero-badge-dot"></span>Adaptive interview intelligence</div><h1>Practice smarter.<br><span class="gradient-text">Perform brilliantly.</span></h1><p>IntelliHire uses adaptive questions, real-time analysis, and personalized feedback to transform every interview into measurable progress.</p><div class="hero-actions"><button class="premium-primary" data-go="${state.user?"setup":"auth"}">Start an interview ${icons.arrow}</button><button class="premium-secondary" data-anchor="features">Explore the platform</button></div><div class="hero-proof"><div class="proof-avatars"><span>1</span><span>2</span><span>3</span></div><span>Purpose-built practice for confident candidates</span></div></div><div class="dashboard-preview"><div class="preview-bar"><div class="preview-dots"><span></span><span></span><span></span></div><span class="preview-status">Live analysis</span></div><div class="preview-grid"><div class="preview-main"><div class="preview-kicker">Adaptive interview · Question 3</div><div class="preview-question">How would you explain a complex technical decision to a non-technical stakeholder?</div><div class="audio-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="preview-side"><div class="preview-metric"><div class="score-ring-mini">82</div><div><strong>Response score</strong><small>Strong delivery</small></div></div><h4>Skill intelligence</h4><div class="skill-row"><div><span>Clarity</span><span>88%</span></div><div class="skill-track"><span style="width:88%"></span></div></div><div class="skill-row"><div><span>Confidence</span><span>74%</span></div><div class="skill-track"><span style="width:74%"></span></div></div><div class="skill-row"><div><span>Structure</span><span>81%</span></div><div class="skill-track"><span style="width:81%"></span></div></div></div></div></div></section>
+  <section class="landing-section" id="features"><div class="premium-wrap"><div class="section-heading"><div class="section-label">One intelligent platform</div><h2>Everything you need to interview with confidence</h2><p>Move beyond memorized answers with targeted practice that adapts to your goals, role, and performance.</p></div><div class="feature-grid"><article class="premium-feature"><span class="feature-symbol">✦</span><h3>AI mock interviews</h3><p>Practice realistic behavioral and technical interviews with live, structured guidance.</p></article><article class="premium-feature"><span class="feature-symbol">⌘</span><h3>Adaptive questions</h3><p>Question difficulty and focus evolve based on your answers and target role.</p></article><article class="premium-feature"><span class="feature-symbol">↗</span><h3>Real-time feedback</h3><p>Get transparent feedback on strengths, gaps, and the next best action.</p></article><article class="premium-feature"><span class="feature-symbol">▤</span><h3>Resume analysis</h3><p>Turn your experience and profile into more relevant interview preparation.</p></article><article class="premium-feature"><span class="feature-symbol">◉</span><h3>Speech analysis</h3><p>Develop clearer delivery, pacing, and confidence through focused practice.</p></article><article class="premium-feature"><span class="feature-symbol">◎</span><h3>Personalized plans</h3><p>Track skill growth and build a focused improvement plan for each session.</p></article></div></div></section>
+  <section class="landing-section" id="about"><div class="premium-wrap"><div class="section-heading"><div class="section-label">How it works</div><h2>From practice to performance in three steps</h2><p>A focused workflow that turns every session into useful, measurable progress.</p></div><div class="how-grid"><article class="how-card"><span class="how-number">01 / Configure</span><h3>Define your goal</h3><p>Choose your category, difficulty, and target role to shape a relevant interview.</p></article><article class="how-card"><span class="how-number">02 / Practice</span><h3>Answer adaptively</h3><p>Work through practical questions and capture thoughtful answers at your pace.</p></article><article class="how-card"><span class="how-number">03 / Improve</span><h3>Review your intelligence</h3><p>Analyze performance, revisit feedback, and track your interview readiness.</p></article></div></div></section>
+  <section class="landing-section"><div class="premium-wrap"><div class="stats-grid"><div class="premium-stat"><strong>7</strong><span>Core intelligence areas</span></div><div class="premium-stat"><strong>20+</strong><span>Curated practice questions</span></div><div class="premium-stat"><strong>2×</strong><span>Behavioral & technical modes</span></div><div class="premium-stat"><strong>100%</strong><span>Private saved practice</span></div></div></div></section>
+  <section class="landing-section"><div class="premium-wrap"><div class="section-heading"><div class="section-label">Built for real growth</div><h2>Practice that feels focused, personal, and useful</h2></div><div class="testimonials"><article class="testimonial"><div class="testimonial-stars">★★★★★</div><p>The adaptive practice structure helped me turn scattered interview preparation into a clear routine.</p><div class="testimonial-person"><span>A</span><div><strong>Product candidate</strong><small>Behavioral interview practice</small></div></div></article><article class="testimonial"><div class="testimonial-stars">★★★★★</div><p>Clear feedback made it easier to see exactly where my explanations needed more structure and evidence.</p><div class="testimonial-person"><span>S</span><div><strong>Software candidate</strong><small>Technical interview practice</small></div></div></article><article class="testimonial"><div class="testimonial-stars">★★★★★</div><p>The dashboard keeps my progress visible so every new session has a specific goal.</p><div class="testimonial-person"><span>M</span><div><strong>Career starter</strong><small>Interview readiness</small></div></div></article></div></div></section>
+  <footer class="landing-footer"><div class="premium-wrap"><div class="footer-grid"><div class="footer-brand"><strong>IntelliHire</strong><p>AI-powered adaptive interview intelligence for focused, transparent practice.</p></div><div class="footer-col"><strong>Platform</strong><a href="#features">Features</a><a href="#" data-go="${state.user?"setup":"auth"}">Practice</a></div><div class="footer-col"><strong>Company</strong><a href="#about">About</a><a href="#" data-view="profile">Profile</a></div><div class="footer-col"><strong>Account</strong><a href="#" data-view="auth">Login</a><a href="#" data-view="auth">Get Started</a></div></div><div class="footer-bottom"><span>© 2026 IntelliHire</span><span>Practice only · Not a hiring decision</span></div></div></footer></div>`;
+  bindDataViews();bindPremiumAnchors();
+  const preview=document.querySelector(".dashboard-preview");if(preview&&window.matchMedia("(pointer:fine)").matches){document.querySelector(".landing-hero")?.addEventListener("pointermove",event=>{const rect=preview.getBoundingClientRect();const x=(event.clientX-(rect.left+rect.width/2))/rect.width;const y=(event.clientY-(rect.top+rect.height/2))/rect.height;preview.style.transform=`perspective(1200px) rotateY(${x*7-4}deg) rotateX(${-y*7+2}deg) translateY(-2px)`});document.querySelector(".landing-hero")?.addEventListener("pointerleave",()=>preview.style.transform="perspective(1200px) rotateY(-4deg) rotateX(2deg)")}
+}
+function bindPremiumAnchors(){document.querySelectorAll("[data-anchor]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();document.querySelector(`#${el.dataset.anchor}`)?.scrollIntoView({behavior:"smooth"})}))}
+const cursorGlow=document.createElement("div");cursorGlow.className="cursor-glow";document.body.appendChild(cursorGlow);if(window.matchMedia("(pointer:fine)").matches){window.addEventListener("pointermove",event=>{cursorGlow.style.left=`${event.clientX}px`;cursorGlow.style.top=`${event.clientY}px`;cursorGlow.classList.add("visible");const hero=document.querySelector(".landing-hero");if(hero){const rect=hero.getBoundingClientRect();const x=(event.clientX-rect.left)/rect.width-.5;const y=(event.clientY-rect.top)/rect.height-.5;const copy=hero.querySelector(".landing-hero-copy");if(copy)copy.style.transform=`translate(${x*-5}px,${y*-5}px)`}});window.addEventListener("pointerleave",()=>cursorGlow.classList.remove("visible"));document.addEventListener("pointermove",event=>{const card=event.target.closest(".premium-feature,.testimonial,.card,.stat,.session-row");document.querySelectorAll(".premium-feature,.testimonial,.card,.stat,.session-row").forEach(el=>{if(el!==card){el.style.setProperty("--tilt-x","0deg");el.style.setProperty("--tilt-y","0deg")}});if(card){const rect=card.getBoundingClientRect();const x=(event.clientX-rect.left)/rect.width-.5;const y=(event.clientY-rect.top)/rect.height-.5;card.style.setProperty("--tilt-x",`${y*-3}deg`);card.style.setProperty("--tilt-y",`${x*3}deg`)}})}document.addEventListener("pointerover",event=>{const button=event.target.closest(".button,.premium-primary,.premium-secondary");if(button)button.addEventListener("pointerdown",press=>{const rect=button.getBoundingClientRect();button.style.setProperty("--press-x",`${press.clientX-rect.left}px`);button.style.setProperty("--press-y",`${press.clientY-rect.top}px`);button.classList.remove("ripple");void button.offsetWidth;button.classList.add("ripple")},{once:true})});const revealObserver=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("revealed");revealObserver.unobserve(entry.target)}}),{threshold:.12});function revealNewPage(){document.querySelectorAll(".premium-feature,.testimonial,.premium-stat,.how-card,.card,.stat,.session-row").forEach(el=>{if(!el.classList.contains("reveal-ready")&&!el.classList.contains("revealed")){el.classList.add("reveal-ready");revealObserver.observe(el)}})}new MutationObserver(revealNewPage).observe(document.querySelector("#app"),{childList:true});window.addEventListener("scroll",()=>document.querySelector(".topbar")?.classList.toggle("scrolled",window.scrollY>12),{passive:true});document.querySelector("#mobileMenu").addEventListener("click",()=>nav.classList.toggle("open"));loadUser().then(()=>go("home"));
 </script>
 </body>
 </html>
